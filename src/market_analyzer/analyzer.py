@@ -114,22 +114,53 @@ class MarketDataAnalyzer:
         Returns:
             Dict[str, pd.DataFrame]: Dictionary containing outlier data for each asset
         """
+        print("\nDetecting outliers...")
         outliers = {}
+        
+        def format_outlier_summary(data: pd.DataFrame) -> str:
+            """Format outlier summary statistics."""
+            close_values = data['Close'].values
+            return (
+                f"\nSummary Statistics:"
+                f"\n- Count: {len(close_values)}"
+                f"\n- Mean: {close_values.mean():.2f}"
+                f"\n- Min: {close_values.min():.2f}"
+                f"\n- Max: {close_values.max():.2f}"
+                f"\n- Std Dev: {close_values.std():.2f}"
+            )
+
+        def process_outliers(symbol: str, data: pd.DataFrame) -> None:
+            """Helper function to process outliers for a single asset."""
+            asset_outliers = detect_outliers(data['Close'], method=method, threshold=threshold)
+            outlier_data = data[asset_outliers]
+            
+            if not outlier_data.empty:
+                outliers[symbol] = outlier_data
+                print(f"\n{symbol} potential outliers detected:")
+                print(f"Number of outliers: {len(outlier_data)}")
+                
+                # Print first 5 and last 5 dates if there are many outliers
+                if len(outlier_data) > 10:
+                    dates_sample = (
+                        outlier_data.index[:5].tolist() +
+                        ['...'] +
+                        outlier_data.index[-5:].tolist()
+                    )
+                    print(f"Outlier dates (showing first 5 and last 5): {dates_sample}")
+                else:
+                    print(f"Outlier dates: {outlier_data.index.tolist()}")
+                
+                # Print summary statistics instead of all values
+                print(format_outlier_summary(outlier_data))
+            else:
+                print(f"\n{symbol}: No outliers detected")
         
         # Analyze cryptocurrencies
         for symbol, data in self.crypto_data.items():
-            asset_outliers = detect_outliers(data['Close'], method=method, threshold=threshold)
-            if asset_outliers.any():
-                outliers[symbol] = data[asset_outliers]
-                print(f"\n{symbol} potential outliers:")
-                print(data[asset_outliers])
+            process_outliers(symbol, data)
 
         # Analyze stocks
         for symbol, data in self.stock_data.items():
-            asset_outliers = detect_outliers(data['Close'], method=method, threshold=threshold)
-            if asset_outliers.any():
-                outliers[symbol] = data[asset_outliers]
-                print(f"\n{symbol} potential outliers:")
-                print(data[asset_outliers])
+            process_outliers(symbol, data)
                 
         return outliers
