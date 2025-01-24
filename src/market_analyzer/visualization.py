@@ -8,6 +8,7 @@ import pandas as pd
 import numpy as np
 from scipy import stats
 from typing import Dict, List, Optional, Tuple
+from statsmodels.graphics.gofplots import ProbPlot
 
 def plot_market_data(
     data: Dict[str, pd.DataFrame],
@@ -32,66 +33,6 @@ def plot_market_data(
     plt.ylabel('Price (USD)')
     plt.legend()
     plt.grid(True, alpha=0.3)
-    plt.show()
-
-def plot_volatility(
-    df: pd.DataFrame,
-    window: int = 20,
-    figsize: Tuple[int, int] = (15, 7)
-) -> None:
-    """
-    Plot rolling volatility.
-
-    Args:
-        df: DataFrame containing market data
-        window: Rolling window size
-        figsize: Figure size
-    """
-    returns = df['Close'].pct_change().dropna()
-    volatility = returns.rolling(window=window).std() * np.sqrt(252)  # Annualized
-    
-    plt.figure(figsize=figsize)
-    plt.plot(volatility.index, volatility, label=f'{window}-day Rolling Volatility')
-    plt.fill_between(volatility.index, 0, volatility, alpha=0.3)
-    plt.title('Rolling Volatility')
-    plt.xlabel('Date')
-    plt.ylabel('Annualized Volatility')
-    plt.legend()
-    plt.grid(True, alpha=0.3)
-    plt.show()
-
-def plot_drawdown(
-    df: pd.DataFrame,
-    figsize: Tuple[int, int] = (15, 7)
-) -> None:
-    """
-    Plot price drawdown.
-
-    Args:
-        df: DataFrame containing market data
-        figsize: Figure size
-    """
-    price = df['Close']
-    peak = price.expanding(min_periods=1).max()
-    drawdown = (price - peak) / peak * 100  # Convert to percentage
-    
-    plt.figure(figsize=figsize)
-    plt.plot(drawdown.index, drawdown)
-    plt.fill_between(drawdown.index, 0, drawdown, alpha=0.3, color='red')
-    plt.title('Price Drawdown')
-    plt.xlabel('Date')
-    plt.ylabel('Drawdown (%)')
-    plt.grid(True, alpha=0.3)
-    plt.axhline(y=0, color='black', linestyle='--', alpha=0.3)
-    
-    # Add min drawdown line and annotation
-    min_drawdown = drawdown.min()
-    min_drawdown_date = drawdown.idxmin()
-    plt.axhline(y=min_drawdown, color='red', linestyle='--', alpha=0.5)
-    plt.annotate(f'Max Drawdown: {min_drawdown:.1f}%', 
-                xy=(min_drawdown_date, min_drawdown),
-                xytext=(10, 10), textcoords='offset points')
-    
     plt.show()
 
 def plot_statistics(
@@ -141,6 +82,32 @@ def plot_statistics(
     plt.tight_layout()
     plt.show()
 
+def plot_volatility(
+    df: pd.DataFrame,
+    window: int = 20,
+    figsize: Tuple[int, int] = (15, 7)
+) -> None:
+    """
+    Plot rolling volatility.
+
+    Args:
+        df: DataFrame containing market data
+        window: Rolling window size
+        figsize: Figure size
+    """
+    returns = df['Close'].pct_change().dropna()
+    volatility = returns.rolling(window=window).std() * np.sqrt(252)  # Annualized
+    
+    plt.figure(figsize=figsize)
+    plt.plot(volatility.index, volatility.values, label=f'{window}-day Rolling Volatility')
+    plt.fill_between(volatility.index, np.zeros_like(volatility.values), volatility.values, alpha=0.3)
+    plt.title('Rolling Volatility')
+    plt.xlabel('Date')
+    plt.ylabel('Annualized Volatility')
+    plt.legend()
+    plt.grid(True, alpha=0.3)
+    plt.show()
+
 def plot_correlation_matrix(
     df: pd.DataFrame,
     figsize: Tuple[int, int] = (10, 8)
@@ -186,10 +153,9 @@ def plot_returns_distribution(
         figsize: Figure size
     """
     # Calculate returns
-    returns = df['Close'].pct_change().dropna()
+    returns = df['Close'].resample(period).last().pct_change().dropna()
     returns_array = returns.values
     
-    # Create figure with two subplots
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=figsize)
     
     # Returns distribution
@@ -199,19 +165,24 @@ def plot_returns_distribution(
     ax1.set_ylabel('Frequency')
     ax1.grid(True, alpha=0.3)
     
-    # QQ plot using statsmodels
-    from statsmodels.graphics.gofplots import ProbPlot
+    # QQ plot
     QQ = ProbPlot(returns_array)
     QQ.qqplot(line='45', ax=ax2)
     ax2.set_title('Normal Q-Q Plot')
     ax2.grid(True, alpha=0.3)
     
+    # Calculate statistics
+    mean_val = returns.mean().item()
+    std_val = returns.std().item()
+    skew_val = returns.skew().item()
+    kurt_val = returns.kurtosis().item()
+    
     # Add statistics annotation
     stats_text = (
-        f'Mean: {float(returns.mean()):.4f}\n'
-        f'Std Dev: {float(returns.std()):.4f}\n'
-        f'Skewness: {float(returns.skew()):.4f}\n'
-        f'Kurtosis: {float(returns.kurtosis()):.4f}'
+        f'Mean: {mean_val:.4f}\n'
+        f'Std Dev: {std_val:.4f}\n'
+        f'Skewness: {skew_val:.4f}\n'
+        f'Kurtosis: {kurt_val:.4f}'
     )
     ax1.text(0.95, 0.95, stats_text,
              transform=ax1.transAxes,
@@ -220,4 +191,39 @@ def plot_returns_distribution(
              bbox=dict(boxstyle='round', facecolor='white', alpha=0.8))
     
     plt.tight_layout()
+    plt.show()
+
+def plot_drawdown(
+    df: pd.DataFrame,
+    figsize: Tuple[int, int] = (15, 7)
+) -> None:
+    """
+    Plot price drawdown.
+
+    Args:
+        df: DataFrame containing market data
+        figsize: Figure size
+    """
+    price = df['Close']
+    peak = price.expanding(min_periods=1).max()
+    drawdown = (price - peak) / peak * 100  # Convert to percentage
+    
+    plt.figure(figsize=figsize)
+    plt.plot(drawdown.index, drawdown.values)
+    plt.fill_between(drawdown.index, np.zeros_like(drawdown.values), drawdown.values, 
+                    alpha=0.3, color='red')
+    plt.title('Price Drawdown')
+    plt.xlabel('Date')
+    plt.ylabel('Drawdown (%)')
+    plt.grid(True, alpha=0.3)
+    plt.axhline(y=0, color='black', linestyle='--', alpha=0.3)
+    
+    # Add min drawdown line and annotation
+    min_drawdown = drawdown.min()
+    min_drawdown_date = drawdown.idxmin()
+    plt.axhline(y=min_drawdown, color='red', linestyle='--', alpha=0.5)
+    plt.annotate(f'Max Drawdown: {min_drawdown:.1f}%', 
+                xy=(min_drawdown_date, min_drawdown),
+                xytext=(10, 10), textcoords='offset points')
+    
     plt.show()
