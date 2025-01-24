@@ -185,8 +185,11 @@ def plot_returns_distribution(
         period: Returns calculation period ('D' for daily, 'W' for weekly, etc.)
         figsize: Figure size
     """
-    returns = df['Close'].resample(period).last().pct_change().dropna()
+    # Calculate returns
+    returns = df['Close'].pct_change().dropna()
+    returns_array = returns.values
     
+    # Create figure with two subplots
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=figsize)
     
     # Returns distribution
