@@ -37,6 +37,7 @@ setup(
         "seaborn>=0.11.0",
         "requests>=2.28.0",
         "scikit-learn>=1.0.0",
+        "statsmodels>=0.14.4",
     ],
     extras_require={
         "dev": [
