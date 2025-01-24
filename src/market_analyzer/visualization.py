@@ -98,19 +98,33 @@ def plot_volatility(
     returns = df['Close'].pct_change().dropna()
     volatility = returns.rolling(window=window).std() * np.sqrt(252)  # Annualized
     
-    # Convert to numpy arrays for plotting
-    dates = volatility.index
-    vol_values = volatility.values
-    zeros = np.zeros(len(vol_values))
-    
     plt.figure(figsize=figsize)
-    plt.plot(dates, vol_values, label=f'{window}-day Rolling Volatility')
-    plt.fill_between(dates, zeros, vol_values, alpha=0.3)
-    plt.title('Rolling Volatility')
+    plt.plot(volatility.index, volatility, 
+             color='blue', label=f'{window}-day Rolling Volatility')
+    
+    # Add mean and standard deviation lines
+    mean_vol = volatility.mean()
+    std_vol = volatility.std()
+    plt.axhline(y=mean_vol, color='red', linestyle='--', alpha=0.5, 
+                label=f'Mean: {mean_vol:.3f}')
+    plt.axhline(y=mean_vol + 2*std_vol, color='gray', linestyle=':', alpha=0.5,
+                label='+2σ')
+    plt.axhline(y=max(0, mean_vol - 2*std_vol), color='gray', linestyle=':', alpha=0.5,
+                label='-2σ')
+    
+    plt.title('Rolling Volatility Analysis')
     plt.xlabel('Date')
     plt.ylabel('Annualized Volatility')
     plt.legend()
     plt.grid(True, alpha=0.3)
+    
+    # Add current volatility annotation
+    current_vol = volatility.iloc[-1]
+    plt.annotate(f'Current: {current_vol:.3f}', 
+                xy=(volatility.index[-1], current_vol),
+                xytext=(10, 10), textcoords='offset points',
+                bbox=dict(boxstyle='round,pad=0.5', fc='yellow', alpha=0.5))
+    
     plt.show()
 
 def plot_correlation_matrix(
@@ -213,26 +227,34 @@ def plot_drawdown(
     peak = price.expanding(min_periods=1).max()
     drawdown = (price - peak) / peak * 100  # Convert to percentage
     
-    # Convert to numpy arrays for plotting
-    dates = drawdown.index
-    dd_values = drawdown.values
-    zeros = np.zeros(len(dd_values))
-    
     plt.figure(figsize=figsize)
-    plt.plot(dates, dd_values)
-    plt.fill_between(dates, zeros, dd_values, alpha=0.3, color='red')
-    plt.title('Price Drawdown')
+    plt.plot(drawdown.index, drawdown, color='red', label='Drawdown')
+    
+    # Add reference lines
+    plt.axhline(y=0, color='black', linestyle='--', alpha=0.3)
+    
+    # Add statistics
+    min_drawdown = drawdown.min()
+    min_drawdown_date = drawdown.idxmin()
+    mean_drawdown = drawdown.mean()
+    current_drawdown = drawdown.iloc[-1]
+    
+    # Add min drawdown line and annotation
+    plt.axhline(y=min_drawdown, color='red', linestyle='--', alpha=0.5,
+                label=f'Max Drawdown: {min_drawdown:.1f}%')
+    plt.axhline(y=mean_drawdown, color='gray', linestyle=':', alpha=0.5,
+                label=f'Mean Drawdown: {mean_drawdown:.1f}%')
+    
+    # Add current drawdown annotation
+    plt.annotate(f'Current: {current_drawdown:.1f}%', 
+                xy=(drawdown.index[-1], current_drawdown),
+                xytext=(10, 10), textcoords='offset points',
+                bbox=dict(boxstyle='round,pad=0.5', fc='yellow', alpha=0.5))
+    
+    plt.title('Price Drawdown Analysis')
     plt.xlabel('Date')
     plt.ylabel('Drawdown (%)')
     plt.grid(True, alpha=0.3)
-    plt.axhline(y=0, color='black', linestyle='--', alpha=0.3)
-    
-    # Add min drawdown line and annotation
-    min_drawdown = drawdown.min()
-    min_drawdown_date = drawdown.idxmin()
-    plt.axhline(y=min_drawdown, color='red', linestyle='--', alpha=0.5)
-    plt.annotate(f'Max Drawdown: {min_drawdown:.1f}%', 
-                xy=(min_drawdown_date, min_drawdown),
-                xytext=(10, 10), textcoords='offset points')
+    plt.legend()
     
     plt.show()
