@@ -103,8 +103,8 @@ def plot_volatility(
              color='blue', label=f'{window}-day Rolling Volatility')
     
     # Add mean and standard deviation lines
-    mean_vol = volatility.mean()
-    std_vol = volatility.std()
+    mean_vol = float(volatility.mean())
+    std_vol = float(volatility.std())
     plt.axhline(y=mean_vol, color='red', linestyle='--', alpha=0.5, 
                 label=f'Mean: {mean_vol:.3f}')
     plt.axhline(y=mean_vol + 2*std_vol, color='gray', linestyle=':', alpha=0.5,
@@ -119,7 +119,7 @@ def plot_volatility(
     plt.grid(True, alpha=0.3)
     
     # Add current volatility annotation
-    current_vol = volatility.iloc[-1]
+    current_vol = float(volatility.iloc[-1])
     plt.annotate(f'Current: {current_vol:.3f}', 
                 xy=(volatility.index[-1], current_vol),
                 xytext=(10, 10), textcoords='offset points',
@@ -234,10 +234,10 @@ def plot_drawdown(
     plt.axhline(y=0, color='black', linestyle='--', alpha=0.3)
     
     # Add statistics
-    min_drawdown = drawdown.min()
+    min_drawdown = float(drawdown.min())
     min_drawdown_date = drawdown.idxmin()
-    mean_drawdown = drawdown.mean()
-    current_drawdown = drawdown.iloc[-1]
+    mean_drawdown = float(drawdown.mean())
+    current_drawdown = float(drawdown.iloc[-1])
     
     # Add min drawdown line and annotation
     plt.axhline(y=min_drawdown, color='red', linestyle='--', alpha=0.5,
