@@ -55,19 +55,27 @@ def plot_statistics(
     
     # Create subplots
     fig, axes = plt.subplots(len(metrics), 2, figsize=figsize)
+    if len(metrics) == 1:
+        axes = np.array([axes])  # Ensure axes is 2D
     fig.suptitle('Statistical Analysis')
     
     for i, metric in enumerate(metrics):
         data = df[metric].dropna()
         
-        # Histogram
-        sns.histplot(data=data, ax=axes[i, 0])
+        # Histogram with KDE
+        sns.histplot(data=data, kde=True, ax=axes[i, 0])
         axes[i, 0].set_title(f'{metric} Distribution')
+        axes[i, 0].set_xlabel(metric)
+        axes[i, 0].set_ylabel('Count')
         
-        # Box plot - create DataFrame with proper index for seaborn
-        box_data = pd.DataFrame({metric: data.values})
-        sns.boxplot(data=box_data, y=metric, ax=axes[i, 1])
+        # Simplified boxplot approach
+        axes[i, 1].boxplot(data)
         axes[i, 1].set_title(f'{metric} Box Plot')
+        axes[i, 1].set_ylabel(metric)
+        
+        # Add grid
+        axes[i, 0].grid(True, alpha=0.3)
+        axes[i, 1].grid(True, alpha=0.3)
     
     plt.tight_layout()
     plt.show()
@@ -88,8 +96,19 @@ def plot_correlation_matrix(
     corr = df[numeric_cols].corr()
     
     plt.figure(figsize=figsize)
-    sns.heatmap(corr, annot=True, cmap='coolwarm', center=0, fmt='.2f')
+    mask = np.triu(np.ones_like(corr), k=1)  # Mask upper triangle
+    sns.heatmap(
+        corr,
+        mask=mask,
+        annot=True,
+        cmap='coolwarm',
+        center=0,
+        fmt='.2f',
+        square=True,
+        linewidths=0.5
+    )
     plt.title('Correlation Matrix')
+    plt.tight_layout()
     plt.show()
 
 def plot_returns_distribution(
@@ -114,11 +133,13 @@ def plot_returns_distribution(
     ax1.set_title(f'{period} Returns Distribution')
     ax1.set_xlabel('Returns')
     ax1.set_ylabel('Frequency')
+    ax1.grid(True, alpha=0.3)
     
     # QQ plot
     from scipy import stats
     stats.probplot(returns, dist="norm", plot=ax2)
     ax2.set_title('Normal Q-Q Plot')
+    ax2.grid(True, alpha=0.3)
     
     plt.tight_layout()
     plt.show()
@@ -141,11 +162,12 @@ def plot_volatility(
     
     plt.figure(figsize=figsize)
     plt.plot(volatility.index, volatility, label=f'{window}-day Rolling Volatility')
+    plt.fill_between(volatility.index, 0, volatility, alpha=0.3)
     plt.title('Rolling Volatility')
     plt.xlabel('Date')
     plt.ylabel('Annualized Volatility')
     plt.legend()
-    plt.grid(True)
+    plt.grid(True, alpha=0.3)
     plt.show()
 
 def plot_drawdown(
@@ -165,10 +187,10 @@ def plot_drawdown(
     
     plt.figure(figsize=figsize)
     plt.plot(drawdown.index, drawdown)
+    plt.fill_between(drawdown.index, 0, drawdown, alpha=0.3, color='red')
     plt.title('Price Drawdown')
     plt.xlabel('Date')
     plt.ylabel('Drawdown (%)')
-    plt.grid(True)
-    # Add a horizontal line at 0
-    plt.axhline(y=0, color='r', linestyle='--', alpha=0.3)
+    plt.grid(True, alpha=0.3)
+    plt.axhline(y=0, color='black', linestyle='--', alpha=0.3)
     plt.show()
