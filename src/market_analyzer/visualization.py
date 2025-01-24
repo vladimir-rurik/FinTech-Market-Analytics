@@ -98,9 +98,14 @@ def plot_volatility(
     returns = df['Close'].pct_change().dropna()
     volatility = returns.rolling(window=window).std() * np.sqrt(252)  # Annualized
     
+    # Convert to numpy arrays for plotting
+    dates = volatility.index
+    vol_values = volatility.values
+    zeros = np.zeros(len(vol_values))
+    
     plt.figure(figsize=figsize)
-    plt.plot(volatility.index, volatility.values, label=f'{window}-day Rolling Volatility')
-    plt.fill_between(volatility.index, np.zeros_like(volatility.values), volatility.values, alpha=0.3)
+    plt.plot(dates, vol_values, label=f'{window}-day Rolling Volatility')
+    plt.fill_between(dates, zeros, vol_values, alpha=0.3)
     plt.title('Rolling Volatility')
     plt.xlabel('Date')
     plt.ylabel('Annualized Volatility')
@@ -208,10 +213,14 @@ def plot_drawdown(
     peak = price.expanding(min_periods=1).max()
     drawdown = (price - peak) / peak * 100  # Convert to percentage
     
+    # Convert to numpy arrays for plotting
+    dates = drawdown.index
+    dd_values = drawdown.values
+    zeros = np.zeros(len(dd_values))
+    
     plt.figure(figsize=figsize)
-    plt.plot(drawdown.index, drawdown.values)
-    plt.fill_between(drawdown.index, np.zeros_like(drawdown.values), drawdown.values, 
-                    alpha=0.3, color='red')
+    plt.plot(dates, dd_values)
+    plt.fill_between(dates, zeros, dd_values, alpha=0.3, color='red')
     plt.title('Price Drawdown')
     plt.xlabel('Date')
     plt.ylabel('Drawdown (%)')
