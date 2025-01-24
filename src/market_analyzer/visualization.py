@@ -208,10 +208,10 @@ def plot_returns_distribution(
     
     # Add statistics annotation
     stats_text = (
-        f'Mean: {returns.mean():.4f}\n'
-        f'Std Dev: {returns.std():.4f}\n'
-        f'Skewness: {returns.skew():.4f}\n'
-        f'Kurtosis: {returns.kurtosis():.4f}'
+        f'Mean: {float(returns.mean()):.4f}\n'
+        f'Std Dev: {float(returns.std()):.4f}\n'
+        f'Skewness: {float(returns.skew()):.4f}\n'
+        f'Kurtosis: {float(returns.kurtosis()):.4f}'
     )
     ax1.text(0.95, 0.95, stats_text,
              transform=ax1.transAxes,
