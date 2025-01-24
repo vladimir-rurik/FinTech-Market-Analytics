@@ -53,16 +53,20 @@ def plot_statistics(
     if 'Returns' not in df.columns:
         df['Returns'] = df['Close'].pct_change()
     
+    # Create subplots
     fig, axes = plt.subplots(len(metrics), 2, figsize=figsize)
     fig.suptitle('Statistical Analysis')
     
     for i, metric in enumerate(metrics):
+        data = df[metric].dropna()
+        
         # Histogram
-        sns.histplot(df[metric].dropna(), ax=axes[i, 0])
+        sns.histplot(data=data, ax=axes[i, 0])
         axes[i, 0].set_title(f'{metric} Distribution')
         
-        # Box plot
-        sns.boxplot(y=df[metric].dropna(), ax=axes[i, 1])
+        # Box plot - create DataFrame with proper index for seaborn
+        box_data = pd.DataFrame({metric: data.values})
+        sns.boxplot(data=box_data, y=metric, ax=axes[i, 1])
         axes[i, 1].set_title(f'{metric} Box Plot')
     
     plt.tight_layout()
@@ -79,10 +83,12 @@ def plot_correlation_matrix(
         df: DataFrame containing market data
         figsize: Figure size
     """
-    corr = df.corr()
+    # Calculate correlations for numeric columns only
+    numeric_cols = df.select_dtypes(include=[np.number]).columns
+    corr = df[numeric_cols].corr()
     
     plt.figure(figsize=figsize)
-    sns.heatmap(corr, annot=True, cmap='coolwarm', center=0)
+    sns.heatmap(corr, annot=True, cmap='coolwarm', center=0, fmt='.2f')
     plt.title('Correlation Matrix')
     plt.show()
 
@@ -104,8 +110,10 @@ def plot_returns_distribution(
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=figsize)
     
     # Returns distribution
-    sns.histplot(returns, kde=True, ax=ax1)
+    sns.histplot(data=returns, kde=True, ax=ax1)
     ax1.set_title(f'{period} Returns Distribution')
+    ax1.set_xlabel('Returns')
+    ax1.set_ylabel('Frequency')
     
     # QQ plot
     from scipy import stats
@@ -153,12 +161,14 @@ def plot_drawdown(
     """
     price = df['Close']
     peak = price.expanding(min_periods=1).max()
-    drawdown = (price - peak) / peak
+    drawdown = (price - peak) / peak * 100  # Convert to percentage
     
     plt.figure(figsize=figsize)
-    plt.plot(drawdown.index, drawdown * 100)
+    plt.plot(drawdown.index, drawdown)
     plt.title('Price Drawdown')
     plt.xlabel('Date')
     plt.ylabel('Drawdown (%)')
     plt.grid(True)
+    # Add a horizontal line at 0
+    plt.axhline(y=0, color='r', linestyle='--', alpha=0.3)
     plt.show()
