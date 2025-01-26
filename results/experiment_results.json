@@ -1,0 +1,350 @@
+{
+    "BTC-USD": [
+        {
+            "timestamp": "2025-01-26 11:39:07",
+            "model_name": "random_forest",
+            "train_metrics": {
+                "accuracy": 0.6332574031890661,
+                "precision": 0.7487607115739234,
+                "recall": 0.6332574031890661,
+                "f1": 0.5796845094582694
+            },
+            "test_metrics": {
+                "accuracy": 0.363013698630137,
+                "precision": 0.23416754478398313,
+                "recall": 0.363013698630137,
+                "f1": 0.24093043162820316
+            },
+            "validation_metrics": {
+                "accuracy": 0.43537414965986393,
+                "precision": 0.3417490072952258,
+                "recall": 0.43537414965986393,
+                "f1": 0.3272582664906759
+            },
+            "parameters": {
+                "n_estimators": 100,
+                "max_depth": 5,
+                "min_samples_split": 10,
+                "random_state": 42
+            }
+        },
+        {
+            "timestamp": "2025-01-26 11:39:08",
+            "model_name": "gradient_boosting",
+            "train_metrics": {
+                "accuracy": 0.9772209567198178,
+                "precision": 0.9776465722007917,
+                "recall": 0.9772209567198178,
+                "f1": 0.977172654315285
+            },
+            "test_metrics": {
+                "accuracy": 0.3493150684931507,
+                "precision": 0.3751256148516422,
+                "recall": 0.3493150684931507,
+                "f1": 0.33251413908003424
+            },
+            "validation_metrics": {
+                "accuracy": 0.3945578231292517,
+                "precision": 0.3963618204875757,
+                "recall": 0.3945578231292517,
+                "f1": 0.38513110754690316
+            },
+            "parameters": {
+                "n_estimators": 100,
+                "learning_rate": 0.1,
+                "max_depth": 3,
+                "random_state": 42
+            }
+        },
+        {
+            "timestamp": "2025-01-26 11:39:08",
+            "model_name": "logistic_regression",
+            "train_metrics": {
+                "accuracy": 0.5148063781321185,
+                "precision": 0.4893263911487146,
+                "recall": 0.5148063781321185,
+                "f1": 0.45519725895353413
+            },
+            "test_metrics": {
+                "accuracy": 0.3424657534246575,
+                "precision": 0.33382966051220964,
+                "recall": 0.3424657534246575,
+                "f1": 0.29602259072338377
+            },
+            "validation_metrics": {
+                "accuracy": 0.40816326530612246,
+                "precision": 0.3735990942496462,
+                "recall": 0.40816326530612246,
+                "f1": 0.35493115946224485
+            },
+            "parameters": {
+                "penalty": "l2",
+                "C": 1.0,
+                "solver": "lbfgs",
+                "multi_class": "ovr",
+                "random_state": 42
+            }
+        }
+    ],
+    "ETH-USD": [
+        {
+            "timestamp": "2025-01-26 11:39:16",
+            "model_name": "random_forest",
+            "train_metrics": {
+                "accuracy": 0.744874715261959,
+                "precision": 0.7853279496146016,
+                "recall": 0.744874715261959,
+                "f1": 0.7285922829625252
+            },
+            "test_metrics": {
+                "accuracy": 0.3082191780821918,
+                "precision": 0.4338757647625881,
+                "recall": 0.3082191780821918,
+                "f1": 0.2543661577547663
+            },
+            "validation_metrics": {
+                "accuracy": 0.3129251700680272,
+                "precision": 0.3577781989988978,
+                "recall": 0.3129251700680272,
+                "f1": 0.291479357700527
+            },
+            "parameters": {
+                "n_estimators": 100,
+                "max_depth": 5,
+                "min_samples_split": 10,
+                "random_state": 42
+            }
+        },
+        {
+            "timestamp": "2025-01-26 11:39:17",
+            "model_name": "gradient_boosting",
+            "train_metrics": {
+                "accuracy": 0.9863325740318907,
+                "precision": 0.9863864555145825,
+                "recall": 0.9863325740318907,
+                "f1": 0.9863387670477652
+            },
+            "test_metrics": {
+                "accuracy": 0.2808219178082192,
+                "precision": 0.30079429031886734,
+                "recall": 0.2808219178082192,
+                "f1": 0.2625570776255708
+            },
+            "validation_metrics": {
+                "accuracy": 0.41496598639455784,
+                "precision": 0.40067787181290115,
+                "recall": 0.41496598639455784,
+                "f1": 0.40174866939256904
+            },
+            "parameters": {
+                "n_estimators": 100,
+                "learning_rate": 0.1,
+                "max_depth": 3,
+                "random_state": 42
+            }
+        },
+        {
+            "timestamp": "2025-01-26 11:39:17",
+            "model_name": "logistic_regression",
+            "train_metrics": {
+                "accuracy": 0.5034168564920274,
+                "precision": 0.494312906018515,
+                "recall": 0.5034168564920274,
+                "f1": 0.47379412357234135
+            },
+            "test_metrics": {
+                "accuracy": 0.2945205479452055,
+                "precision": 0.2970087959080131,
+                "recall": 0.2945205479452055,
+                "f1": 0.2645206311362576
+            },
+            "validation_metrics": {
+                "accuracy": 0.2925170068027211,
+                "precision": 0.3370067466277379,
+                "recall": 0.2925170068027211,
+                "f1": 0.26796737052548636
+            },
+            "parameters": {
+                "penalty": "l2",
+                "C": 1.0,
+                "solver": "lbfgs",
+                "multi_class": "ovr",
+                "random_state": 42
+            }
+        }
+    ],
+    "SOL-USD": [
+        {
+            "timestamp": "2025-01-26 11:39:24",
+            "model_name": "random_forest",
+            "train_metrics": {
+                "accuracy": 0.785876993166287,
+                "precision": 0.8057563148136312,
+                "recall": 0.785876993166287,
+                "f1": 0.7633615701692549
+            },
+            "test_metrics": {
+                "accuracy": 0.3493150684931507,
+                "precision": 0.2998976539127696,
+                "recall": 0.3493150684931507,
+                "f1": 0.27583441526898245
+            },
+            "validation_metrics": {
+                "accuracy": 0.4013605442176871,
+                "precision": 0.42726581783155737,
+                "recall": 0.4013605442176871,
+                "f1": 0.33078742557715085
+            },
+            "parameters": {
+                "n_estimators": 100,
+                "max_depth": 5,
+                "min_samples_split": 10,
+                "random_state": 42
+            }
+        },
+        {
+            "timestamp": "2025-01-26 11:39:25",
+            "model_name": "gradient_boosting",
+            "train_metrics": {
+                "accuracy": 0.9749430523917996,
+                "precision": 0.9752328592932432,
+                "recall": 0.9749430523917996,
+                "f1": 0.9746916392683491
+            },
+            "test_metrics": {
+                "accuracy": 0.3287671232876712,
+                "precision": 0.35763406348576093,
+                "recall": 0.3287671232876712,
+                "f1": 0.30295762723626324
+            },
+            "validation_metrics": {
+                "accuracy": 0.3877551020408163,
+                "precision": 0.3534199321791406,
+                "recall": 0.3877551020408163,
+                "f1": 0.34806703027290814
+            },
+            "parameters": {
+                "n_estimators": 100,
+                "learning_rate": 0.1,
+                "max_depth": 3,
+                "random_state": 42
+            }
+        },
+        {
+            "timestamp": "2025-01-26 11:39:25",
+            "model_name": "logistic_regression",
+            "train_metrics": {
+                "accuracy": 0.4396355353075171,
+                "precision": 0.4503601606308293,
+                "recall": 0.4396355353075171,
+                "f1": 0.3862417010318077
+            },
+            "test_metrics": {
+                "accuracy": 0.363013698630137,
+                "precision": 0.3598091765456759,
+                "recall": 0.363013698630137,
+                "f1": 0.3601977043248351
+            },
+            "validation_metrics": {
+                "accuracy": 0.3673469387755102,
+                "precision": 0.2767117236504992,
+                "recall": 0.3673469387755102,
+                "f1": 0.3143685112450645
+            },
+            "parameters": {
+                "penalty": "l2",
+                "C": 1.0,
+                "solver": "lbfgs",
+                "multi_class": "ovr",
+                "random_state": 42
+            }
+        }
+    ],
+    "XRP-USD": [
+        {
+            "timestamp": "2025-01-26 11:39:31",
+            "model_name": "random_forest",
+            "train_metrics": {
+                "accuracy": 0.785876993166287,
+                "precision": 0.7981514279730669,
+                "recall": 0.785876993166287,
+                "f1": 0.7853651664416657
+            },
+            "test_metrics": {
+                "accuracy": 0.3698630136986301,
+                "precision": 0.3905501478589739,
+                "recall": 0.3698630136986301,
+                "f1": 0.36077289113193944
+            },
+            "validation_metrics": {
+                "accuracy": 0.272108843537415,
+                "precision": 0.46934267054991397,
+                "recall": 0.272108843537415,
+                "f1": 0.3036654775753293
+            },
+            "parameters": {
+                "n_estimators": 100,
+                "max_depth": 5,
+                "min_samples_split": 10,
+                "random_state": 42
+            }
+        },
+        {
+            "timestamp": "2025-01-26 11:39:32",
+            "model_name": "gradient_boosting",
+            "train_metrics": {
+                "accuracy": 0.979498861047836,
+                "precision": 0.9796300054406754,
+                "recall": 0.979498861047836,
+                "f1": 0.9794943230063002
+            },
+            "test_metrics": {
+                "accuracy": 0.3493150684931507,
+                "precision": 0.3728767123287671,
+                "recall": 0.3493150684931507,
+                "f1": 0.3244053704082328
+            },
+            "validation_metrics": {
+                "accuracy": 0.22448979591836735,
+                "precision": 0.40585587635277076,
+                "recall": 0.22448979591836735,
+                "f1": 0.22249116157480067
+            },
+            "parameters": {
+                "n_estimators": 100,
+                "learning_rate": 0.1,
+                "max_depth": 3,
+                "random_state": 42
+            }
+        },
+        {
+            "timestamp": "2025-01-26 11:39:32",
+            "model_name": "logistic_regression",
+            "train_metrics": {
+                "accuracy": 0.4419134396355353,
+                "precision": 0.44064037996658784,
+                "recall": 0.4419134396355353,
+                "f1": 0.43574283852186907
+            },
+            "test_metrics": {
+                "accuracy": 0.3835616438356164,
+                "precision": 0.38216823860041493,
+                "recall": 0.3835616438356164,
+                "f1": 0.382669860490649
+            },
+            "validation_metrics": {
+                "accuracy": 0.5238095238095238,
+                "precision": 0.7709750566893424,
+                "recall": 0.5238095238095238,
+                "f1": 0.5792329508365207
+            },
+            "parameters": {
+                "penalty": "l2",
+                "C": 1.0,
+                "solver": "lbfgs",
+                "multi_class": "ovr",
+                "random_state": 42
+            }
+        }
+    ]
+}

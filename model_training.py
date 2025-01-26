@@ -20,6 +20,7 @@ from market_analyzer.time_series_models import (
     SARIMAXStrategy,
     TimeSeriesModelManager
 )
+from market_analyzer.experiment_tracker import ExperimentTracker
 
 def plot_feature_importance(model, feature_names: List[str], title: str):
     """Plot feature importance for tree-based models."""
@@ -167,6 +168,23 @@ def prepare_features(features: pd.DataFrame) -> pd.DataFrame:
         print(f"Error in feature preparation: {str(e)}")
         raise
 
+def split_data(data: pd.DataFrame, features: pd.DataFrame) -> Tuple:
+    """Split data into train, test, and validation sets."""
+    # 60% train, 20% test, 20% validation
+    train_size = int(len(data) * 0.6)
+    test_size = int(len(data) * 0.2)
+    
+    train_data = data[:train_size]
+    test_data = data[train_size:train_size + test_size]
+    val_data = data[train_size + test_size:]
+    
+    train_features = features[:train_size]
+    test_features = features[train_size:train_size + test_size]
+    val_features = features[train_size + test_size:]
+    
+    return (train_data, test_data, val_data,
+            train_features, test_features, val_features)
+
 def main():
     """Run model training and evaluation pipeline."""
     # Create directories
@@ -177,10 +195,100 @@ def main():
     print("Initializing components...")
     analyzer = MarketDataAnalyzer()
     preprocessor = DataPreprocessor(db_path='data/market_data.db')
+    experiment_tracker = ExperimentTracker()
     
     # Download and process data
     print("\nDownloading market data...")
     analyzer.download_data(period="2y")
+    
+    # Process each asset
+    for symbol, data in analyzer.crypto_data.items():
+        print(f"\nProcessing {symbol}...")
+        
+        try:
+            # Clean data and generate features
+            cleaned_data = preprocessor.clean_data(data)
+            features = preprocessor.engineer_features(cleaned_data)
+            features = prepare_features(features)
+            
+            # Split data
+            splits = split_data(cleaned_data, features)
+            train_data, test_data, val_data, train_features, test_features, val_features = splits
+            
+            print(f"\nTraining models for {symbol}...")
+            
+            # Train ML models
+            ml_model_manager = MLModelManager()
+            models = [
+                RandomForestStrategy(),
+                GradientBoostingStrategy(),
+                RegularizedLogisticStrategy()
+            ]
+            
+            ml_results = []
+            for model in models:
+                print(f"\nTraining {model.model_name}...")
+                
+                # Train and evaluate
+                train_metrics = ml_model_manager.train_model(
+                    model, train_features, train_data)
+                    
+                test_metrics = ml_model_manager.evaluate_model(
+                    model, test_features, test_data)
+                    
+                val_metrics = ml_model_manager.evaluate_model(
+                    model, val_features, val_data)
+                
+                print("Training metrics:", train_metrics)
+                print("Test metrics:", test_metrics)
+                print("Validation metrics:", val_metrics)
+                
+                # Save experiment results
+                experiment_tracker.save_experiment(
+                    experiment_name=symbol,
+                    model_name=model.model_name,
+                    train_metrics=train_metrics,
+                    test_metrics=test_metrics,
+                    validation_metrics=val_metrics,
+                    params=model.model_params
+                )
+                
+                ml_results.append({
+                    'model_name': model.model_name,
+                    'train_metrics': train_metrics,
+                    'test_metrics': test_metrics,
+                    'validation_metrics': val_metrics,
+                    'model': model
+                })
+            
+            # Plot experiment history
+            experiment_tracker.plot_experiment_history(symbol)
+            
+            # Plot model comparison
+            plot_model_comparison(ml_results, symbol)
+            
+            # Get and plot best model
+            best_model = experiment_tracker.get_best_experiment(symbol)
+            print(f"\nBest model for {symbol}:", 
+                  best_model['model_name'])
+            print("Best validation metrics:", 
+                  best_model['validation_metrics'])
+            
+            print(f"\nProcessing complete for {symbol}!")
+            
+        except Exception as e:
+            print(f"Error processing {symbol}: {str(e)}")
+            continue
+
+if __name__ == "__main__":
+    try:
+        main()
+    except KeyboardInterrupt:
+        print("\nTraining interrupted by user")
+    except Exception as e:
+        print(f"\nError during training: {str(e)}")
+    finally:
+        print("\nModel training pipeline finished")
     
     # Process each asset
     for symbol, data in analyzer.crypto_data.items():
