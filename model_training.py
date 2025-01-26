@@ -1,12 +1,13 @@
 """
-Model training and evaluation script.
-Main script for training and evaluating ML and time series models.
+Model training and evaluation script with visualizations.
 """
 
 import os
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import seaborn as sns
+from typing import Dict, List, Optional, Tuple
 from market_analyzer import MarketDataAnalyzer
 from market_analyzer.preprocessor import DataPreprocessor
 from market_analyzer.ml_models import (
@@ -19,118 +20,95 @@ from market_analyzer.time_series_models import (
     SARIMAXStrategy,
     TimeSeriesModelManager
 )
-from market_analyzer.data_dashboard import DataProcessingDashboard
-from typing import List, Dict
 
-def train_ml_models(features: pd.DataFrame, data: pd.DataFrame,
-                   test_features: pd.DataFrame, test_data: pd.DataFrame):
-    """Train and evaluate ML models."""
-    # Initialize model manager
-    model_manager = MLModelManager(models_dir='models/ml')
-    
-    # Define models to train
-    models = [
-        RandomForestStrategy(),
-        GradientBoostingStrategy(),
-        RegularizedLogisticStrategy()
-    ]
-    
-    results = []
-    for model in models:
-        print(f"\nTraining {model.model_name}...")
-        
-        # Train model
-        train_metrics = model_manager.train_model(
-            model, features, data
-        )
-        print("Training metrics:", train_metrics)
-        
-        # Evaluate model
-        test_metrics = model_manager.evaluate_model(
-            model, test_features, test_data
-        )
-        print("Test metrics:", test_metrics)
-        
-        results.append({
-            'model_name': model.model_name,
-            'train_metrics': train_metrics,
-            'test_metrics': test_metrics
-        })
-    
-    return results
+def plot_feature_importance(model, feature_names: List[str], title: str):
+    """Plot feature importance for tree-based models."""
+    if hasattr(model, 'feature_importances_'):
+        plt.figure(figsize=(12, 6))
+        importance = pd.Series(model.feature_importances_, index=feature_names)
+        importance = importance.sort_values(ascending=True)
+        importance.tail(20).plot(kind='barh')  # Show top 20 features
+        plt.title(f'Feature Importance - {title}')
+        plt.xlabel('Importance Score')
+        plt.tight_layout()
+        plt.show()
 
-def train_time_series_models(data: pd.DataFrame, test_data: pd.DataFrame):
-    """Train and evaluate time series models."""
-    # Initialize model manager
-    model_manager = TimeSeriesModelManager(models_dir='models/ts')
+def plot_model_comparison(model_results: List[Dict], title: str):
+    """Plot model performance comparison."""
+    metrics = ['accuracy', 'precision', 'recall', 'f1']
     
-    # Define models
-    models = [
-        SARIMAXStrategy()
-    ]
+    fig, axes = plt.subplots(2, 2, figsize=(15, 10))
+    fig.suptitle(f'Model Performance Comparison - {title}')
     
-    results = []
-    for model in models:
-        print(f"\nTraining {model.model_name}...")
+    for i, metric in enumerate(metrics):
+        ax = axes[i // 2, i % 2]
         
-        # Train model
-        train_metrics = model_manager.train_model(
-            model, data
-        )
-        print("Training metrics:", train_metrics)
+        data = {
+            'Model': [],
+            'Train': [],
+            'Test': []
+        }
         
-        # Evaluate model
-        test_metrics = model_manager.evaluate_model(
-            model, test_data
-        )
-        print("Test metrics:", test_metrics)
+        for result in model_results:
+            data['Model'].append(result['model_name'])
+            data['Train'].append(result['train_metrics'][metric])
+            data['Test'].append(result['test_metrics'][metric])
         
-        results.append({
-            'model_name': model.model_name,
-            'train_metrics': train_metrics,
-            'test_metrics': test_metrics
-        })
+        df = pd.DataFrame(data)
+        df.plot(x='Model', y=['Train', 'Test'], kind='bar', ax=ax)
+        ax.set_title(f'{metric.title()} Score')
+        ax.set_ylim(0, 1)
+        ax.tick_params(axis='x', rotation=45)
+        ax.grid(True, alpha=0.3)
     
-    return results
+    plt.tight_layout()
+    plt.show()
 
-def plot_model_comparison(ml_results: List[Dict], ts_results: List[Dict]):
-    """Plot model comparison dashboard."""
-    # Create figure with subplots
-    fig = plt.figure(figsize=(15, 10))
-    gs = fig.add_gridspec(2, 2)
+def plot_predictions(model_result: Dict, data: pd.DataFrame, title: str):
+    """Plot model predictions vs actual prices."""
+    plt.figure(figsize=(15, 6))
     
-    # ML Models Training Metrics
-    ax1 = fig.add_subplot(gs[0, 0])
-    model_names = [r['model_name'] for r in ml_results]
-    accuracies = [r['train_metrics']['accuracy'] for r in ml_results]
-    ax1.bar(model_names, accuracies)
-    ax1.set_title('ML Models - Training Accuracy')
-    ax1.set_ylim(0, 1)
-    ax1.tick_params(axis='x', rotation=45)
+    # Plot actual prices
+    plt.plot(data.index, data['Close'], label='Actual Price', alpha=0.7)
     
-    # ML Models Test Metrics
-    ax2 = fig.add_subplot(gs[0, 1])
-    test_accuracies = [r['test_metrics']['accuracy'] for r in ml_results]
-    ax2.bar(model_names, test_accuracies)
-    ax2.set_title('ML Models - Test Accuracy')
-    ax2.set_ylim(0, 1)
-    ax2.tick_params(axis='x', rotation=45)
+    # Plot buy/sell signals
+    signals = model_result['signals']
+    buy_signals = signals == 1
+    sell_signals = signals == -1
     
-    # Time Series Models Training Metrics
-    ax3 = fig.add_subplot(gs[1, 0])
-    ts_names = [r['model_name'] for r in ts_results]
-    rmse_train = [r['train_metrics']['rmse'] for r in ts_results]
-    ax3.bar(ts_names, rmse_train)
-    ax3.set_title('Time Series Models - Training RMSE')
-    ax3.tick_params(axis='x', rotation=45)
+    plt.scatter(data.index[buy_signals], data.loc[buy_signals, 'Close'],
+                color='green', marker='^', label='Buy Signal')
+    plt.scatter(data.index[sell_signals], data.loc[sell_signals, 'Close'],
+                color='red', marker='v', label='Sell Signal')
     
-    # Time Series Models Test Metrics
-    ax4 = fig.add_subplot(gs[1, 1])
-    rmse_test = [r['test_metrics']['rmse'] for r in ts_results]
-    ax4.bar(ts_names, rmse_test)
-    ax4.set_title('Time Series Models - Test RMSE')
-    ax4.tick_params(axis='x', rotation=45)
+    plt.title(f'Trading Signals - {title}')
+    plt.xlabel('Date')
+    plt.ylabel('Price')
+    plt.legend()
+    plt.grid(True, alpha=0.3)
+    plt.tight_layout()
+    plt.show()
+
+def plot_returns_distribution(returns: pd.Series, title: str):
+    """Plot distribution of trading returns."""
+    plt.figure(figsize=(12, 5))
     
+    # Plot histogram with KDE
+    sns.histplot(returns, kde=True)
+    
+    # Add vertical lines for mean and standard deviation
+    plt.axvline(returns.mean(), color='r', linestyle='--', 
+                label=f'Mean: {returns.mean():.4f}')
+    plt.axvline(returns.mean() + returns.std(), color='g', linestyle='--',
+                label=f'Mean + Std: {returns.mean() + returns.std():.4f}')
+    plt.axvline(returns.mean() - returns.std(), color='g', linestyle='--',
+                label=f'Mean - Std: {returns.mean() - returns.std():.4f}')
+    
+    plt.title(f'Returns Distribution - {title}')
+    plt.xlabel('Returns')
+    plt.ylabel('Frequency')
+    plt.legend()
+    plt.grid(True, alpha=0.3)
     plt.tight_layout()
     plt.show()
 
@@ -161,7 +139,7 @@ def prepare_features(features: pd.DataFrame) -> pd.DataFrame:
         features = features.ffill().bfill().fillna(0)
         
         # Drop highly correlated features
-        if len(features.columns) > 1:  # Only if we have multiple columns
+        if len(features.columns) > 1:
             corr_matrix = features.corr().abs()
             upper = corr_matrix.where(
                 np.triu(np.ones(corr_matrix.shape), k=1).astype(bool))
@@ -174,6 +152,14 @@ def prepare_features(features: pd.DataFrame) -> pd.DataFrame:
         print(f"\nFinal feature set shape: {features.shape}")
         print("\nFeature types:")
         print(features.dtypes.value_counts())
+        
+        # Plot feature correlation matrix
+        plt.figure(figsize=(10, 8))
+        sns.heatmap(features.corr(), cmap='coolwarm', center=0, 
+                   annot=False, square=True)
+        plt.title('Feature Correlations')
+        plt.tight_layout()
+        plt.show()
         
         return features
         
@@ -196,9 +182,6 @@ def main():
     print("\nDownloading market data...")
     analyzer.download_data(period="2y")
     
-    ml_results = []
-    ts_results = []
-    
     # Process each asset
     for symbol, data in analyzer.crypto_data.items():
         print(f"\nProcessing {symbol}...")
@@ -210,13 +193,17 @@ def main():
             # Generate features
             features = preprocessor.engineer_features(cleaned_data)
             
+            # Plot raw data
+            plt.figure(figsize=(15, 6))
+            plt.plot(cleaned_data.index, cleaned_data['Close'])
+            plt.title(f'{symbol} Price History')
+            plt.xlabel('Date')
+            plt.ylabel('Price')
+            plt.grid(True, alpha=0.3)
+            plt.show()
+            
             # Prepare features for modeling
             features = prepare_features(features)
-            
-            # Print feature information
-            print(f"\nFeature set shape: {features.shape}")
-            print("Feature types:")
-            print(features.dtypes.value_counts())
             
             # Split data into train and test
             train_size = int(len(cleaned_data) * 0.8)
@@ -227,18 +214,48 @@ def main():
             
             print(f"\nTraining models for {symbol}...")
             
-            # Train and evaluate ML models
-            ml_res = train_ml_models(train_features, train_data,
-                                   test_features, test_data)
-            ml_results.extend(ml_res)
+            # Train ML models
+            ml_model_manager = MLModelManager()
+            models = [
+                RandomForestStrategy(),
+                GradientBoostingStrategy(),
+                RegularizedLogisticStrategy()
+            ]
             
-            # Train and evaluate time series models
-            ts_res = train_time_series_models(train_data, test_data)
-            ts_results.extend(ts_res)
+            ml_results = []
+            for model in models:
+                print(f"\nTraining {model.model_name}...")
+                
+                # Train and evaluate
+                train_metrics = ml_model_manager.train_model(
+                    model, train_features, train_data)
+                test_metrics = ml_model_manager.evaluate_model(
+                    model, test_features, test_data)
+                
+                print("Training metrics:", train_metrics)
+                print("Test metrics:", test_metrics)
+                
+                ml_results.append({
+                    'model_name': model.model_name,
+                    'train_metrics': train_metrics,
+                    'test_metrics': test_metrics,
+                    'model': model
+                })
+                
+                # Plot feature importance for tree-based models
+                if hasattr(model.model, 'feature_importances_'):
+                    plot_feature_importance(model.model, 
+                                         features.columns, 
+                                         f"{symbol} - {model.model_name}")
             
             # Plot model comparison
-            print("\nGenerating model comparison dashboard...")
-            plot_model_comparison(ml_res, ts_res)
+            plot_model_comparison(ml_results, symbol)
+            
+            # Plot predictions for best model
+            best_model = max(ml_results, 
+                           key=lambda x: x['test_metrics']['f1'])
+            plot_predictions(best_model, test_data,
+                           f"{symbol} - {best_model['model_name']}")
             
             print(f"\nProcessing complete for {symbol}!")
             
