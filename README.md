@@ -1,32 +1,60 @@
 # FinTech-Market-Analytics
 
-A comprehensive Python toolkit for financial market data analysis and visualization. This project provides tools for automated analysis of stock market and cryptocurrency data, including data downloading, preprocessing, quality analysis, and advanced visualizations.
+A comprehensive Python toolkit for financial market data analysis, backtesting, and trading strategy development. This project provides tools for automated analysis of stock market and cryptocurrency data, including data downloading, preprocessing, strategy development, and performance evaluation.
 
 ## Features
 
+### Data Management
 - **Automated Data Collection**
   - S&P500 stocks historical data
   - Major cryptocurrencies (BTC, ETH, SOL, XRP) data
   - Automatic handling of missing data and splits
-
-- **Market Analysis Tools**
-  - Rolling volatility calculation
-  - Drawdown analysis
-  - Statistical metrics
-  - Returns distribution analysis
-
-- **Advanced Visualizations**
-  - Price trend analysis
-  - Volatility charts with statistical bands
-  - Drawdown analysis with key metrics
-  - Correlation matrices
-  - Statistical distributions and QQ plots
-
 - **Data Quality Analysis**
   - Missing values detection
-  - Outlier analysis and validation
   - Data integrity checks
   - Market anomaly detection
+
+### Trading Strategies
+The project implements several technical analysis-based trading strategies:
+
+1. **Moving Average Crossover Strategy**
+   - Uses short and long-term moving averages
+   - Generates signals based on crossover points
+   - Configurable window sizes for optimization
+
+2. **RSI (Relative Strength Index) Strategy**
+   - Identifies overbought and oversold conditions
+   - Customizable RSI period and threshold levels
+   - Mean reversion trading approach
+
+3. **MACD (Moving Average Convergence Divergence) Strategy**
+   - Combines trend following and momentum
+   - Uses configurable fast and slow periods
+   - Signal line crossover for trade decisions
+
+4. **Bollinger Bands Strategy**
+   - Statistical price channel approach
+   - Adapts to market volatility
+   - Configurable standard deviation bands
+
+### Backtesting Framework
+- **Data Split Management**
+  - Training set (60%): For strategy optimization
+  - Testing set (20%): For parameter validation
+  - Validation set (20%): For final performance assessment
+
+- **Performance Metrics**
+  - Total and annualized returns
+  - Sharpe ratio
+  - Maximum drawdown
+  - Volatility analysis
+
+### Visualization Tools
+- Price trend analysis
+- Strategy performance comparison
+- Statistical distributions
+- Correlation analysis
+- Drawdown visualization
 
 ## Installation
 
@@ -39,207 +67,87 @@ cd FinTech-Market-Analytics
 python -m venv venv
 source venv/Scripts/activate  # On Windows use: venv\Scripts\activate
 
-# Install the package and dependencies
+# Install required packages
 pip install -r requirements.txt
 pip install -e .
-```
-
-## Quick Start
-
-```python
-from market_analyzer import MarketDataAnalyzer
-from market_analyzer.visualization import (
-    plot_market_data,
-    plot_statistics,
-    plot_correlation_matrix,
-    plot_returns_distribution,
-    plot_volatility,
-    plot_drawdown
-)
-
-# Initialize analyzer
-analyzer = MarketDataAnalyzer()
-
-# Download and analyze data
-analyzer.download_data(period="1y")
-analyzer.check_missing_values()
-analyzer.detect_outliers()
-
-# Create visualizations
-plot_market_data(analyzer.crypto_data, title="Cryptocurrency Price Trends")
-plot_volatility(analyzer.crypto_data['BTC-USD'])
-plot_drawdown(analyzer.crypto_data['BTC-USD'])
-```
-
-## Running the Analysis Script
-
-The project includes a ready-to-use analysis script (`analysis.py`) that demonstrates the main features of the toolkit:
-
-```bash
-# Activate virtual environment if you haven't already
-venv\Scripts\activate  # On Windows
-source venv/bin/activate  # On Unix/MacOS
-
-# Run the analysis script
-python analysis.py
-```
-
-The script will:
-1. Download market data for cryptocurrencies (BTC, ETH, SOL, XRP) and top S&P500 stocks
-2. Perform data quality checks and detect outliers
-3. Generate various visualizations:
-   - Market price trends
-   - Rolling volatility with statistical bands
-   - Maximum drawdown analysis
-   - Returns distribution with QQ plots
-   - Statistical analysis plots
-   - Correlation matrices
-
-### Customizing the Analysis
-
-You can modify `analysis.py` to change:
-- Time period (default: "1y")
-- Assets to analyze
-- Window size for volatility calculation
-- Types of visualizations to generate
-
-Example of a customized analysis:
-```python
-from market_analyzer import MarketDataAnalyzer
-from market_analyzer.visualization import (
-    plot_market_data,
-    plot_statistics,
-    plot_correlation_matrix,
-    plot_returns_distribution,
-    plot_volatility,
-    plot_drawdown
-)
-
-def main():
-    # Initialize analyzer
-    analyzer = MarketDataAnalyzer()
-    
-    # Download data with custom period
-    analyzer.download_data(period="2y")  # Change period to 2 years
-    
-    # Check data quality
-    analyzer.check_missing_values()
-    analyzer.detect_outliers()
-    
-    # Create visualizations
-    print("\nCreating visualizations...")
-    
-    # Plot crypto data
-    plot_market_data(
-        analyzer.crypto_data,
-        title="Cryptocurrency Price Trends",
-        figsize=(15, 10)
-    )
-    
-    # Analyze specific cryptocurrency (e.g., Bitcoin)
-    if 'BTC-USD' in analyzer.crypto_data:
-        btc_data = analyzer.crypto_data['BTC-USD']
-        
-        # Generate various plots
-        plot_statistics(btc_data, figsize=(15, 12))
-        plot_correlation_matrix(btc_data)
-        plot_returns_distribution(btc_data)
-        plot_volatility(btc_data, window=30)  # Change volatility window
-        plot_drawdown(btc_data)
-    
-    print("\nAnalysis complete! Check the generated plots for results.")
-
-if __name__ == "__main__":
-    main()
-```
-
-### Expected Output
-
-The script will generate multiple plots showing:
-1. **Market Overview**:
-   - Price trends for all analyzed assets
-   - Comparative performance visualization
-
-2. **Volatility Analysis**:
-   - Rolling volatility with mean and ±2σ bands
-   - Current volatility level
-   - Historical volatility trends
-
-3. **Drawdown Analysis**:
-   - Historical drawdowns
-   - Maximum drawdown points
-   - Current drawdown level
-   - Mean drawdown reference
-
-4. **Statistical Analysis**:
-   - Returns distribution
-   - QQ plots for normality testing
-   - Key statistical metrics
-   - Correlation patterns
-
-5. **Data Quality Indicators**:
-   - Missing value reports
-   - Outlier detection results
-   - Data integrity checks
-
-## Requirements
-
-- Python 3.8+
-- Dependencies:
-  - yfinance>=0.2.12
-  - pandas>=1.5.0
-  - numpy>=1.21.0
-  - matplotlib>=3.5.0
-  - seaborn>=0.11.0
-  - statsmodels>=0.13.0
-  - scikit-learn>=1.0.0
-
-## Project Structure
-
-```
-FinTech-Market-Analytics/
-├── LICENSE
-├── README.md
-├── requirements.txt
-├── setup.py
-├── src/
-│   └── market_analyzer/
-│       ├── __init__.py
-│       ├── analyzer.py      # Core analysis functionality
-│       ├── utils.py        # Utility functions
-│       └── visualization.py # Plotting functions
-└── tests/
-│   └── test_analyzer.py
-└── analysis.py
 ```
 
 ## Usage Examples
 
 ### Basic Market Analysis
 ```python
+from market_analyzer import MarketDataAnalyzer
+
+# Initialize analyzer and download data
 analyzer = MarketDataAnalyzer()
-analyzer.download_data(period="1y")
+analyzer.download_data(period="2y")
 
-# Plot cryptocurrency trends
-plot_market_data(analyzer.crypto_data, title="Crypto Market Trends")
-
-# Analyze Bitcoin specifically
-btc_data = analyzer.crypto_data['BTC-USD']
-plot_statistics(btc_data)
-plot_volatility(btc_data)
-plot_drawdown(btc_data)
+# Process specific cryptocurrency
+btc_data = analyzer.get_asset_data('BTC-USD')
 ```
 
-### Advanced Analysis
+### Strategy Development and Testing
 ```python
-# Get volatility statistics
-volatility = analyzer.calculate_rolling_volatility()
+from market_analyzer.strategy import MovingAverageCrossStrategy
+from market_analyzer.backtester import Backtester
 
-# Perform correlation analysis
-plot_correlation_matrix(analyzer.crypto_data['BTC-USD'])
+# Initialize backtester with data splits
+backtester = Backtester(btc_data)
 
-# Analyze returns distribution
-plot_returns_distribution(btc_data, period='D')
+# Create and evaluate strategy
+strategy = MovingAverageCrossStrategy(short_window=20, long_window=50)
+results = backtester.evaluate_strategy(strategy, backtester.validation_data)
+
+# Print performance metrics
+print(f"Total Return: {results['total_return']:.2%}")
+print(f"Sharpe Ratio: {results['sharpe_ratio']:.2f}")
+print(f"Max Drawdown: {results['max_drawdown']:.2%}")
+```
+
+### Strategy Optimization
+```python
+# Define parameter grid for optimization
+params = {
+    'short_window': [10, 20, 30],
+    'long_window': [50, 100, 200]
+}
+
+# Find best parameters
+best_params, best_metrics = backtester.optimize_strategy(
+    MovingAverageCrossStrategy,
+    params,
+    metric='sharpe_ratio'
+)
+```
+
+### Performance Visualization
+```python
+from market_analyzer.dashboard import StrategyDashboard
+
+# Create dashboard
+dashboard = StrategyDashboard()
+
+# Plot various performance metrics
+dashboard.plot_portfolio_values(results)
+dashboard.plot_returns_distribution(results)
+dashboard.plot_drawdown(results)
+```
+
+## Project Structure
+
+```
+FinTech-Market-Analytics/
+├── src/
+│   └── market_analyzer/
+│       ├── __init__.py
+│       ├── analyzer.py      # Data collection and preprocessing
+│       ├── strategy.py      # Trading strategy implementations
+│       ├── backtester.py    # Backtesting engine
+│       ├── dashboard.py     # Visualization tools
+│       └── utils.py         # Utility functions
+├── tests/
+│   └── test_analyzer.py
+└── strategy_analysis.py
 ```
 
 ## Contributing
@@ -257,5 +165,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## Acknowledgments
 
 - Data provided by Yahoo Finance
-- Inspiration from various financial analysis tools and libraries
+- Technical analysis features powered by TA-Lib
+- Visualization tools based on matplotlib and seaborn
 
