@@ -1,11 +1,11 @@
 # FinTech-Market-Analytics
 
-A comprehensive Python toolkit for financial market data analysis, backtesting, and machine learning pipeline. This project provides tools for automated analysis of stock market and cryptocurrency data, including data preprocessing, feature engineering, strategy development, and performance evaluation.
+A comprehensive Python toolkit for financial market data analysis, machine learning model development, and trading strategy evaluation. This project provides tools for automated analysis of stock market and cryptocurrency data, including data preprocessing, feature engineering, model training, and performance evaluation.
 
 ## Core Components
 
 ### 1. Data Processing Pipeline
-- **Data Collection**: Automated download of market data
+- **Data Collection**
   - S&P500 stocks historical data
   - Major cryptocurrencies (BTC, ETH, SOL, XRP)
   - Automatic handling of real-time updates
@@ -23,24 +23,53 @@ A comprehensive Python toolkit for financial market data analysis, backtesting, 
   - Technical indicators (RSI, MACD, Bollinger Bands)
   - Machine learning specific features
 
-### 2. Trading Strategies
+### 2. Machine Learning Models
+- **Classical ML Models**
+  - Random Forest Strategy
+  - Gradient Boosting Strategy
+  - Regularized Logistic Strategy
+
+- **Time Series Models**
+  - SARIMAX for price prediction
+  - Volatility forecasting
+  - Trend analysis
+
+- **Model Management**
+  - Experiment tracking
+  - Model versioning
+  - Performance monitoring
+  - Hyperparameter optimization
+
+### 3. Trading Strategies
 - **Technical Analysis Based**
   - Moving Average Crossover
-  - RSI (Relative Strength Index)
-  - MACD (Moving Average Convergence Divergence)
-  - Bollinger Bands
+  - RSI Strategy
+  - MACD Strategy
+  - Bollinger Bands Strategy
 
-- **Backtesting Framework**
-  - Data split management (Training/Testing/Validation)
-  - Performance metrics calculation
-  - Strategy optimization
+- **ML-Based Strategies**
+  - Automated signal generation
+  - Risk management
+  - Portfolio optimization
 
-### 3. Visualization Tools
-- Market trend analysis
-- Feature distributions and correlations
-- Strategy performance comparison
-- Data quality monitoring
-- Interactive dashboards
+### 4. Backtesting & Evaluation
+- **Data Split Management**
+  - Training set (60%)
+  - Testing set (20%)
+  - Validation set (20%)
+
+- **Performance Metrics**
+  - Accuracy, Precision, Recall, F1
+  - Returns and Sharpe ratio
+  - Maximum drawdown
+  - Trading costs consideration
+
+### 5. Visualization & Monitoring
+- Feature importance analysis
+- Model performance comparison
+- Trading signals visualization
+- Returns distribution analysis
+- Experiment tracking dashboard
 
 ## Installation
 
@@ -55,51 +84,49 @@ source venv/Scripts/activate  # On Windows use: venv\Scripts\activate
 
 # Install required packages
 pip install -r requirements.txt
-pip install -e .
 ```
 
 ## Usage Examples
 
-### 1. Data Processing Pipeline
+### 1. Data Processing & Feature Engineering
 ```python
 from market_analyzer import MarketDataAnalyzer
 from market_analyzer.preprocessor import DataPreprocessor
-from market_analyzer.data_dashboard import DataProcessingDashboard
 
 # Initialize components
 analyzer = MarketDataAnalyzer()
-preprocessor = DataPreprocessor(db_path='data/market_data.db')
-dashboard = DataProcessingDashboard()
+preprocessor = DataPreprocessor()
 
-# Process data
+# Download and process data
 analyzer.download_data(period="2y")
-for symbol, data in analyzer.crypto_data.items():
-    # Clean data
-    cleaned_data = preprocessor.clean_data(data)
-    
-    # Generate features
-    features = preprocessor.engineer_features(cleaned_data)
-    
-    # Store and visualize
-    preprocessor.process_new_data(symbol, cleaned_data)
-    dashboard.plot_summary_dashboard(cleaned_data, features)
+data = analyzer.get_asset_data('BTC-USD')
+cleaned_data = preprocessor.clean_data(data)
+features = preprocessor.engineer_features(cleaned_data)
 ```
 
-### 2. Trading Strategy Development
+### 2. Model Training & Evaluation
 ```python
-from market_analyzer.strategy import MovingAverageCrossStrategy
-from market_analyzer.backtester import Backtester
+from market_analyzer.ml_models import RandomForestStrategy, MLModelManager
+from market_analyzer.experiment_tracker import ExperimentTracker
 
-# Initialize backtester with data splits
-backtester = Backtester(btc_data)
+# Initialize components
+model = RandomForestStrategy()
+model_manager = MLModelManager()
+tracker = ExperimentTracker()
 
-# Create and evaluate strategy
-strategy = MovingAverageCrossStrategy(short_window=20, long_window=50)
-results = backtester.evaluate_strategy(strategy, backtester.validation_data)
+# Train and evaluate
+train_metrics = model_manager.train_model(model, train_features, train_data)
+test_metrics = model_manager.evaluate_model(model, test_features, test_data)
 
-# Print performance metrics
-print(f"Total Return: {results['total_return']:.2%}")
-print(f"Sharpe Ratio: {results['sharpe_ratio']:.2f}")
+# Track experiment
+tracker.save_experiment(
+    experiment_name='BTC_prediction',
+    model_name='random_forest',
+    train_metrics=train_metrics,
+    test_metrics=test_metrics,
+    validation_metrics=val_metrics,
+    params=model.model_params
+)
 ```
 
 ## Running the Analysis
@@ -111,25 +138,26 @@ The project includes three main scripts:
 python data_processing.py
 ```
 - Downloads market data
-- Cleans and preprocesses data
+- Performs preprocessing
 - Generates features
 - Creates data quality visualizations
 
-2. **Strategy Analysis**:
+2. **Model Training**:
+```bash
+python model_training.py
+```
+- Trains ML models
+- Evaluates performance
+- Tracks experiments
+- Generates visualizations
+
+3. **Trading Strategy Analysis**:
 ```bash
 python strategy_analysis.py
 ```
 - Implements trading strategies
 - Performs backtesting
 - Generates performance reports
-
-3. **Market Analysis**:
-```bash
-python analysis.py
-```
-- Analyzes market trends
-- Creates market overview visualizations
-- Generates technical analysis reports
 
 ## Project Structure
 
@@ -138,34 +166,44 @@ FinTech-Market-Analytics/
 ├── src/
 │   └── market_analyzer/
 │       ├── __init__.py
-│       ├── analyzer.py      # Market data analysis
-│       ├── preprocessor.py  # Data preprocessing
+│       ├── analyzer.py          # Market data analysis
+│       ├── preprocessor.py      # Data preprocessing
 │       ├── feature_engineering.py  # Feature generation
-│       ├── strategy.py      # Trading strategies
-│       ├── backtester.py    # Backtesting engine
-│       ├── dashboard.py     # Visualization
-│       └── data_dashboard.py  # Data quality monitoring
-├── data/                    # Data storage
-├── tests/                   # Unit tests
-├── analysis.py
-├── data_processing.py
-└── strategy_analysis.py
+│       ├── ml_models.py         # ML model implementations
+│       ├── time_series_models.py  # Time series models
+│       ├── experiment_tracker.py  # Experiment tracking
+│       ├── strategy.py          # Trading strategies
+│       └── visualization.py     # Visualization tools
+├── data/                        # Data storage
+├── models/                      # Saved models
+├── results/                     # Experiment results
+└── tests/                       # Unit tests
 ```
 
-## Output Data Structure
+## Output Structure
 
-The processed data is stored in an SQLite database with two main tables:
+The project generates several outputs:
 
-1. **Raw Data Table**
-- Date
-- Symbol
-- OHLCV data
+1. **Processed Data**
+- Clean market data
+- Engineered features
+- Technical indicators
 
-2. **Processed Features Table**
-- Date
-- Symbol
-- Feature name
-- Feature value
+2. **Model Artifacts**
+- Trained models
+- Model parameters
+- Feature importance
+
+3. **Experiment Results**
+- Training metrics
+- Validation results
+- Performance comparisons
+
+4. **Visualizations**
+- Feature importance plots
+- Performance comparisons
+- Trading signals
+- Returns distributions
 
 ## Contributing
 
@@ -179,8 +217,3 @@ The processed data is stored in an SQLite database with two main tables:
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## Acknowledgments
-
-- Data provided by Yahoo Finance
-- Technical analysis features powered by TA-Lib
-- Visualization tools based on matplotlib and seaborn
