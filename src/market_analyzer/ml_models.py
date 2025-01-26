@@ -24,12 +24,40 @@ class MLStrategy:
         self.feature_columns = None
     
     def prepare_data(self, features: pd.DataFrame, target: pd.Series) -> Tuple[np.ndarray, np.ndarray]:
-        """Prepare data for ML model."""
-        if self.feature_columns is None:
-            self.feature_columns = features.columns.tolist()
+        """
+        Prepare data for ML model.
         
-        X = self.scaler.fit_transform(features[self.feature_columns])
+        Args:
+            features: DataFrame with features
+            target: Series with target values
+            
+        Returns:
+            Tuple of (X, y) arrays ready for ML model
+        """
+        # Convert categorical columns to numeric
+        numeric_features = pd.DataFrame(index=features.index)
+        
+        for column in features.columns:
+            # Skip target columns or date columns
+            if column.startswith('future_return_') or isinstance(features[column].dtype, pd.DatetimeTZDtype):
+                continue
+                
+            if features[column].dtype == 'object' or pd.api.types.is_categorical_dtype(features[column]):
+                # One-hot encode categorical features
+                dummies = pd.get_dummies(features[column], prefix=column)
+                numeric_features = pd.concat([numeric_features, dummies], axis=1)
+            else:
+                # Keep numeric features
+                numeric_features[column] = pd.to_numeric(features[column], errors='coerce')
+        
+        # Store feature columns for later use
+        if self.feature_columns is None:
+            self.feature_columns = numeric_features.columns.tolist()
+        
+        # Scale features
+        X = self.scaler.fit_transform(numeric_features[self.feature_columns].fillna(0))
         y = target.values
+        
         return X, y
     
     def create_target(self, data: pd.DataFrame, horizon: int = 1) -> pd.Series:

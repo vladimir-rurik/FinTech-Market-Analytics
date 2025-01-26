@@ -71,23 +71,27 @@ class DataPreprocessor:
     
     def _handle_missing_values(self, data: pd.DataFrame) -> pd.DataFrame:
         """Handle missing values in the data."""
-        # Forward fill for missing values
-        data = data.fillna(method='ffill')
+        # Forward fill missing values
+        data = data.ffill()
         # Backward fill for any remaining missing values
-        data = data.fillna(method='bfill')
+        data = data.bfill()
         return data
     
     def _remove_outliers(self, data: pd.DataFrame) -> pd.DataFrame:
         """Remove outliers using RobustScaler."""
+        data = data.copy()
         scaler = RobustScaler()
         cols_to_scale = ['Open', 'High', 'Low', 'Close', 'Volume']
         
         for col in cols_to_scale:
             if col in data.columns:
-                scaled_data = scaler.fit_transform(data[col].values.reshape(-1, 1))
-                # Remove data points that are more than 3 scaled units away from median
-                mask = np.abs(scaled_data) <= 3.0
-                data.loc[~mask.ravel(), col] = np.nan
+                # Ensure data is numeric
+                data[col] = pd.to_numeric(data[col], errors='coerce')
+                if data[col].notnull().any():  # Only scale if we have valid numeric data
+                    scaled_data = scaler.fit_transform(data[col].values.reshape(-1, 1))
+                    # Remove data points that are more than 3 scaled units away from median
+                    mask = np.abs(scaled_data) <= 3.0
+                    data.loc[~mask.ravel(), col] = np.nan
                 
         # Fill removed outliers
         data = self._handle_missing_values(data)

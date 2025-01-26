@@ -17,6 +17,31 @@ class FeatureEngineer:
         self.volatility_windows = [5, 10, 20]
         self.momentum_windows = [5, 10, 20]
     
+    def _ensure_numeric(self, data: pd.DataFrame) -> pd.DataFrame:
+        """Ensure all price and volume data is numeric."""
+        data = data.copy()
+        for col in ['Open', 'High', 'Low', 'Close', 'Volume']:
+            if col in data.columns:
+                data[col] = pd.to_numeric(data[col], errors='coerce')
+        return data
+    
+    def create_basic_features(self, data: pd.DataFrame) -> pd.DataFrame:
+        """Create basic price and volume features."""
+        data = self._ensure_numeric(data)
+        features = pd.DataFrame(index=data.index)
+        
+        # Basic price features
+        features['returns'] = data['Close'].pct_change()
+        features['log_returns'] = np.log1p(data['Close']).diff()
+        features['price_range'] = (data['High'] - data['Low']) / data['Close']
+        
+        # Volume features
+        if 'Volume' in data.columns:
+            features['volume_change'] = data['Volume'].pct_change()
+            features['volume_ma'] = data['Volume'].rolling(window=20).mean()
+        
+        return features
+    
     def create_price_features(self, data: pd.DataFrame) -> pd.DataFrame:
         """
         Create price-based features.
@@ -57,26 +82,26 @@ class FeatureEngineer:
         - Volatility regimes
         - Price ranges and gaps
         """
+        data = self._ensure_numeric(data)
         features = pd.DataFrame(index=data.index)
         
-        # Calculate returns
-        returns = data['Close'].pct_change()
-        log_returns = np.log1p(data['Close']).diff()
-        
-        # Rolling volatility
-        for window in self.volatility_windows:
-            features[f'volatility_{window}'] = returns.rolling(window=window).std() * np.sqrt(252)
-            features[f'log_volatility_{window}'] = log_returns.rolling(window=window).std() * np.sqrt(252)
-        
-        # Volatility regimes
-        for window in self.volatility_windows:
-            vol = features[f'volatility_{window}']
-            features[f'vol_regime_{window}'] = pd.qcut(vol, q=5, labels=['very_low', 'low', 'medium', 'high', 'very_high'])
-        
-        # Price ranges and gaps
-        features['daily_range'] = (data['High'] - data['Low']) / data['Close']
-        features['gap_up'] = (data['Open'] - data['Close'].shift(1)) / data['Close'].shift(1)
-        features['gap_down'] = (data['Open'] - data['High'].shift(1)) / data['High'].shift(1)
+        try:
+            # Basic volatility
+            returns = data['Close'].pct_change()
+            
+            for window in self.volatility_windows:
+                # Standard volatility
+                features[f'volatility_{window}'] = returns.rolling(
+                    window=window).std() * np.sqrt(252)
+                
+                # Parkinson volatility (uses High-Low range)
+                high_low_range = np.log(data['High'] / data['Low'])
+                features[f'parkison_vol_{window}'] = np.sqrt(
+                    1 / (4 * np.log(2)) * high_low_range.rolling(
+                        window=window).mean() * 252)
+            
+        except Exception as e:
+            print(f"Error in volatility features: {str(e)}")
         
         return features
 
@@ -119,27 +144,33 @@ class FeatureEngineer:
         - MACD components
         - Bollinger Bands signals
         """
+        data = self._ensure_numeric(data)
         features = pd.DataFrame(index=data.index)
         
-        # RSI variations
-        for window in self.momentum_windows:
-            rsi = ta.momentum.RSIIndicator(data['Close'], window=window)
-            features[f'rsi_{window}'] = rsi.rsi()
-            features[f'rsi_ma_{window}'] = features[f'rsi_{window}'].rolling(window=window).mean()
-        
-        # MACD variations
-        for (fast, slow) in [(12, 26), (5, 35), (8, 21)]:
-            macd = ta.trend.MACD(data['Close'], window_fast=fast, window_slow=slow)
-            features[f'macd_{fast}_{slow}'] = macd.macd()
-            features[f'macd_signal_{fast}_{slow}'] = macd.macd_signal()
-            features[f'macd_diff_{fast}_{slow}'] = macd.macd_diff()
-        
-        # Bollinger Bands
-        for window in self.price_windows:
-            bb = ta.volatility.BollingerBands(data['Close'], window=window)
-            features[f'bb_width_{window}'] = bb.bollinger_wband()
-            features[f'bb_position_{window}'] = \
-                (data['Close'] - bb.bollinger_lband()) / (bb.bollinger_hband() - bb.bollinger_lband())
+        try:
+            # Moving averages
+            for window in [5, 10, 20, 50]:
+                features[f'sma_{window}'] = data['Close'].rolling(window=window).mean()
+                features[f'ema_{window}'] = data['Close'].ewm(span=window).mean()
+            
+            # RSI
+            rsi = ta.momentum.RSIIndicator(data['Close'])
+            features['rsi'] = rsi.rsi()
+            
+            # MACD
+            macd = ta.trend.MACD(data['Close'])
+            features['macd'] = macd.macd()
+            features['macd_signal'] = macd.macd_signal()
+            features['macd_diff'] = macd.macd_diff()
+            
+            # Bollinger Bands
+            bb = ta.volatility.BollingerBands(data['Close'])
+            features['bb_high'] = bb.bollinger_hband()
+            features['bb_low'] = bb.bollinger_lband()
+            features['bb_width'] = bb.bollinger_wband()
+            
+        except Exception as e:
+            print(f"Error in technical features: {str(e)}")
         
         return features
 
@@ -181,26 +212,32 @@ class FeatureEngineer:
         Returns:
             DataFrame with all engineered features
         """
-        all_features = pd.DataFrame(index=data.index)
-        
-        # Create feature groups
-        price_features = self.create_price_features(data)
-        volatility_features = self.create_volatility_features(data)
-        volume_features = self.create_volume_features(data)
-        technical_features = self.create_technical_features(data)
-        ml_features = self.create_ml_features(data)
-        
-        # Combine all features
-        feature_groups = [
-            price_features,
-            volatility_features,
-            volume_features,
-            technical_features,
-            ml_features
-        ]
-        
-        for group in feature_groups:
-            for column in group.columns:
-                all_features[column] = group[column]
-        
-        return all_features
+        try:
+            # Create feature groups
+            all_features = pd.DataFrame(index=data.index)
+            
+            feature_groups = [
+                self.create_basic_features(data),
+                self.create_technical_features(data),
+                self.create_volatility_features(data)
+            ]
+            
+            # Combine features
+            for group in feature_groups:
+                if not group.empty:
+                    for col in group.columns:
+                        all_features[col] = group[col]
+            
+            # Clean up features
+            all_features = all_features.astype(float)
+            all_features = all_features.ffill().bfill().fillna(0)
+            
+            print(f"Created {len(all_features.columns)} features")
+            print("\nFeature summary:")
+            print(all_features.describe().round(4))
+            
+            return all_features
+            
+        except Exception as e:
+            print(f"Error in feature processing: {str(e)}")
+            raise

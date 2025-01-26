@@ -5,6 +5,7 @@ Main script for training and evaluating ML and time series models.
 
 import os
 import pandas as pd
+import numpy as np
 import matplotlib.pyplot as plt
 from market_analyzer import MarketDataAnalyzer
 from market_analyzer.preprocessor import DataPreprocessor
@@ -133,6 +134,53 @@ def plot_model_comparison(ml_results: List[Dict], ts_results: List[Dict]):
     plt.tight_layout()
     plt.show()
 
+def prepare_features(features: pd.DataFrame) -> pd.DataFrame:
+    """Prepare features for model training."""
+    try:
+        if features.empty:
+            raise ValueError("Empty feature set")
+            
+        # Convert all features to float
+        features = features.astype(float)
+        
+        # Drop any constant columns
+        constant_cols = [col for col in features.columns 
+                        if features[col].nunique() == 1]
+        if constant_cols:
+            print(f"Dropping {len(constant_cols)} constant columns")
+            features = features.drop(columns=constant_cols)
+        
+        # Drop columns with too many missing values
+        missing_ratio = features.isnull().sum() / len(features)
+        high_missing_cols = missing_ratio[missing_ratio > 0.5].index
+        if len(high_missing_cols) > 0:
+            print(f"Dropping {len(high_missing_cols)} columns with >50% missing values")
+            features = features.drop(columns=high_missing_cols)
+        
+        # Fill remaining missing values
+        features = features.ffill().bfill().fillna(0)
+        
+        # Drop highly correlated features
+        if len(features.columns) > 1:  # Only if we have multiple columns
+            corr_matrix = features.corr().abs()
+            upper = corr_matrix.where(
+                np.triu(np.ones(corr_matrix.shape), k=1).astype(bool))
+            high_corr_cols = [column for column in upper.columns 
+                          if any(upper[column] > 0.95)]
+            if high_corr_cols:
+                print(f"Dropping {len(high_corr_cols)} highly correlated features")
+                features = features.drop(columns=high_corr_cols)
+        
+        print(f"\nFinal feature set shape: {features.shape}")
+        print("\nFeature types:")
+        print(features.dtypes.value_counts())
+        
+        return features
+        
+    except Exception as e:
+        print(f"Error in feature preparation: {str(e)}")
+        raise
+
 def main():
     """Run model training and evaluation pipeline."""
     # Create directories
@@ -155,35 +203,48 @@ def main():
     for symbol, data in analyzer.crypto_data.items():
         print(f"\nProcessing {symbol}...")
         
-        # Clean data
-        cleaned_data = preprocessor.clean_data(data)
-        
-        # Generate features
-        features = preprocessor.engineer_features(cleaned_data)
-        
-        # Split data into train and test
-        train_size = int(len(cleaned_data) * 0.8)
-        train_data = cleaned_data[:train_size]
-        test_data = cleaned_data[train_size:]
-        train_features = features[:train_size]
-        test_features = features[train_size:]
-        
-        print(f"\nTraining models for {symbol}...")
-        
-        # Train and evaluate ML models
-        ml_res = train_ml_models(train_features, train_data,
-                               test_features, test_data)
-        ml_results.extend(ml_res)
-        
-        # Train and evaluate time series models
-        ts_res = train_time_series_models(train_data, test_data)
-        ts_results.extend(ts_res)
-        
-        # Plot model comparison
-        print("\nGenerating model comparison dashboard...")
-        plot_model_comparison(ml_res, ts_res)
-        
-        print(f"\nProcessing complete for {symbol}!")
+        try:
+            # Clean data
+            cleaned_data = preprocessor.clean_data(data)
+            
+            # Generate features
+            features = preprocessor.engineer_features(cleaned_data)
+            
+            # Prepare features for modeling
+            features = prepare_features(features)
+            
+            # Print feature information
+            print(f"\nFeature set shape: {features.shape}")
+            print("Feature types:")
+            print(features.dtypes.value_counts())
+            
+            # Split data into train and test
+            train_size = int(len(cleaned_data) * 0.8)
+            train_data = cleaned_data[:train_size]
+            test_data = cleaned_data[train_size:]
+            train_features = features[:train_size]
+            test_features = features[train_size:]
+            
+            print(f"\nTraining models for {symbol}...")
+            
+            # Train and evaluate ML models
+            ml_res = train_ml_models(train_features, train_data,
+                                   test_features, test_data)
+            ml_results.extend(ml_res)
+            
+            # Train and evaluate time series models
+            ts_res = train_time_series_models(train_data, test_data)
+            ts_results.extend(ts_res)
+            
+            # Plot model comparison
+            print("\nGenerating model comparison dashboard...")
+            plot_model_comparison(ml_res, ts_res)
+            
+            print(f"\nProcessing complete for {symbol}!")
+            
+        except Exception as e:
+            print(f"Error processing {symbol}: {str(e)}")
+            continue
 
 if __name__ == "__main__":
     try:
