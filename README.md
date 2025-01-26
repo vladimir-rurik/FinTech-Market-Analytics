@@ -1,60 +1,46 @@
 # FinTech-Market-Analytics
 
-A comprehensive Python toolkit for financial market data analysis, backtesting, and trading strategy development. This project provides tools for automated analysis of stock market and cryptocurrency data, including data downloading, preprocessing, strategy development, and performance evaluation.
+A comprehensive Python toolkit for financial market data analysis, backtesting, and machine learning pipeline. This project provides tools for automated analysis of stock market and cryptocurrency data, including data preprocessing, feature engineering, strategy development, and performance evaluation.
 
-## Features
+## Core Components
 
-### Data Management
-- **Automated Data Collection**
+### 1. Data Processing Pipeline
+- **Data Collection**: Automated download of market data
   - S&P500 stocks historical data
-  - Major cryptocurrencies (BTC, ETH, SOL, XRP) data
-  - Automatic handling of missing data and splits
-- **Data Quality Analysis**
-  - Missing values detection
-  - Data integrity checks
-  - Market anomaly detection
+  - Major cryptocurrencies (BTC, ETH, SOL, XRP)
+  - Automatic handling of real-time updates
 
-### Trading Strategies
-The project implements several technical analysis-based trading strategies:
+- **Data Preprocessing**
+  - Missing value handling
+  - Outlier detection and removal
+  - Data normalization and cleaning
+  - Automated quality checks
 
-1. **Moving Average Crossover Strategy**
-   - Uses short and long-term moving averages
-   - Generates signals based on crossover points
-   - Configurable window sizes for optimization
+- **Feature Engineering**
+  - Price-based features (Moving averages, price channels)
+  - Volume-based features (Volume profiles, price-volume correlations)
+  - Volatility indicators (Rolling volatility, volatility regimes)
+  - Technical indicators (RSI, MACD, Bollinger Bands)
+  - Machine learning specific features
 
-2. **RSI (Relative Strength Index) Strategy**
-   - Identifies overbought and oversold conditions
-   - Customizable RSI period and threshold levels
-   - Mean reversion trading approach
+### 2. Trading Strategies
+- **Technical Analysis Based**
+  - Moving Average Crossover
+  - RSI (Relative Strength Index)
+  - MACD (Moving Average Convergence Divergence)
+  - Bollinger Bands
 
-3. **MACD (Moving Average Convergence Divergence) Strategy**
-   - Combines trend following and momentum
-   - Uses configurable fast and slow periods
-   - Signal line crossover for trade decisions
+- **Backtesting Framework**
+  - Data split management (Training/Testing/Validation)
+  - Performance metrics calculation
+  - Strategy optimization
 
-4. **Bollinger Bands Strategy**
-   - Statistical price channel approach
-   - Adapts to market volatility
-   - Configurable standard deviation bands
-
-### Backtesting Framework
-- **Data Split Management**
-  - Training set (60%): For strategy optimization
-  - Testing set (20%): For parameter validation
-  - Validation set (20%): For final performance assessment
-
-- **Performance Metrics**
-  - Total and annualized returns
-  - Sharpe ratio
-  - Maximum drawdown
-  - Volatility analysis
-
-### Visualization Tools
-- Price trend analysis
+### 3. Visualization Tools
+- Market trend analysis
+- Feature distributions and correlations
 - Strategy performance comparison
-- Statistical distributions
-- Correlation analysis
-- Drawdown visualization
+- Data quality monitoring
+- Interactive dashboards
 
 ## Installation
 
@@ -63,7 +49,7 @@ The project implements several technical analysis-based trading strategies:
 git clone https://github.com/yourusername/FinTech-Market-Analytics.git
 cd FinTech-Market-Analytics
 
-# Create and activate virtual environment (recommended)
+# Create and activate virtual environment
 python -m venv venv
 source venv/Scripts/activate  # On Windows use: venv\Scripts\activate
 
@@ -74,19 +60,32 @@ pip install -e .
 
 ## Usage Examples
 
-### Basic Market Analysis
+### 1. Data Processing Pipeline
 ```python
 from market_analyzer import MarketDataAnalyzer
+from market_analyzer.preprocessor import DataPreprocessor
+from market_analyzer.data_dashboard import DataProcessingDashboard
 
-# Initialize analyzer and download data
+# Initialize components
 analyzer = MarketDataAnalyzer()
-analyzer.download_data(period="2y")
+preprocessor = DataPreprocessor(db_path='data/market_data.db')
+dashboard = DataProcessingDashboard()
 
-# Process specific cryptocurrency
-btc_data = analyzer.get_asset_data('BTC-USD')
+# Process data
+analyzer.download_data(period="2y")
+for symbol, data in analyzer.crypto_data.items():
+    # Clean data
+    cleaned_data = preprocessor.clean_data(data)
+    
+    # Generate features
+    features = preprocessor.engineer_features(cleaned_data)
+    
+    # Store and visualize
+    preprocessor.process_new_data(symbol, cleaned_data)
+    dashboard.plot_summary_dashboard(cleaned_data, features)
 ```
 
-### Strategy Development and Testing
+### 2. Trading Strategy Development
 ```python
 from market_analyzer.strategy import MovingAverageCrossStrategy
 from market_analyzer.backtester import Backtester
@@ -101,37 +100,36 @@ results = backtester.evaluate_strategy(strategy, backtester.validation_data)
 # Print performance metrics
 print(f"Total Return: {results['total_return']:.2%}")
 print(f"Sharpe Ratio: {results['sharpe_ratio']:.2f}")
-print(f"Max Drawdown: {results['max_drawdown']:.2%}")
 ```
 
-### Strategy Optimization
-```python
-# Define parameter grid for optimization
-params = {
-    'short_window': [10, 20, 30],
-    'long_window': [50, 100, 200]
-}
+## Running the Analysis
 
-# Find best parameters
-best_params, best_metrics = backtester.optimize_strategy(
-    MovingAverageCrossStrategy,
-    params,
-    metric='sharpe_ratio'
-)
+The project includes three main scripts:
+
+1. **Data Processing**:
+```bash
+python data_processing.py
 ```
+- Downloads market data
+- Cleans and preprocesses data
+- Generates features
+- Creates data quality visualizations
 
-### Performance Visualization
-```python
-from market_analyzer.dashboard import StrategyDashboard
-
-# Create dashboard
-dashboard = StrategyDashboard()
-
-# Plot various performance metrics
-dashboard.plot_portfolio_values(results)
-dashboard.plot_returns_distribution(results)
-dashboard.plot_drawdown(results)
+2. **Strategy Analysis**:
+```bash
+python strategy_analysis.py
 ```
+- Implements trading strategies
+- Performs backtesting
+- Generates performance reports
+
+3. **Market Analysis**:
+```bash
+python analysis.py
+```
+- Analyzes market trends
+- Creates market overview visualizations
+- Generates technical analysis reports
 
 ## Project Structure
 
@@ -140,15 +138,34 @@ FinTech-Market-Analytics/
 ├── src/
 │   └── market_analyzer/
 │       ├── __init__.py
-│       ├── analyzer.py      # Data collection and preprocessing
-│       ├── strategy.py      # Trading strategy implementations
+│       ├── analyzer.py      # Market data analysis
+│       ├── preprocessor.py  # Data preprocessing
+│       ├── feature_engineering.py  # Feature generation
+│       ├── strategy.py      # Trading strategies
 │       ├── backtester.py    # Backtesting engine
-│       ├── dashboard.py     # Visualization tools
-│       └── utils.py         # Utility functions
-├── tests/
-│   └── test_analyzer.py
+│       ├── dashboard.py     # Visualization
+│       └── data_dashboard.py  # Data quality monitoring
+├── data/                    # Data storage
+├── tests/                   # Unit tests
+├── analysis.py
+├── data_processing.py
 └── strategy_analysis.py
 ```
+
+## Output Data Structure
+
+The processed data is stored in an SQLite database with two main tables:
+
+1. **Raw Data Table**
+- Date
+- Symbol
+- OHLCV data
+
+2. **Processed Features Table**
+- Date
+- Symbol
+- Feature name
+- Feature value
 
 ## Contributing
 
@@ -167,4 +184,3 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - Data provided by Yahoo Finance
 - Technical analysis features powered by TA-Lib
 - Visualization tools based on matplotlib and seaborn
-
