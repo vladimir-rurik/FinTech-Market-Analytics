@@ -13,6 +13,8 @@ from datetime import datetime
 
 from .feature_engineering import FeatureEngineer
 
+from sklearn.experimental import enable_iterative_imputer
+
 class DataPreprocessor:
     """Data preprocessing and feature engineering pipeline."""
     
@@ -70,24 +72,72 @@ class DataPreprocessor:
         return data
     
     def _handle_missing_values(self, data: pd.DataFrame) -> pd.DataFrame:
-        """Handle missing values in the data."""
-        # Forward fill for missing values
-        data = data.fillna(method='ffill')
-        # Backward fill for any remaining missing values
-        data = data.fillna(method='bfill')
+        """
+        Handle missing values using multiple imputation strategies.
+        
+        Strategies:
+        1. KNN imputation for closely related time points
+        2. Iterative imputation for complex patterns
+        3. Forward/backward fill only for small gaps
+        """
+        from sklearn.impute import KNNImputer, IterativeImputer
+        
+        # Make a copy to avoid modifying original data
+        data = data.copy()
+        
+        # Calculate missing percentage for each column
+        missing_pct = data.isnull().sum() / len(data)
+        
+        # Separate columns by missing percentage
+        high_missing = missing_pct[missing_pct > 0.3].index
+        low_missing = missing_pct[missing_pct <= 0.3].index
+        
+        if len(high_missing) > 0:
+            print(f"Columns with >30% missing values: {list(high_missing)}")
+            print("Using IterativeImputer for these columns")
+            
+            # Use IterativeImputer for columns with many missing values
+            imp = IterativeImputer(
+                max_iter=10,
+                random_state=42,
+                initial_strategy='median'
+            )
+            data[high_missing] = imp.fit_transform(data[high_missing])
+        
+        if len(low_missing) > 0:
+            print(f"Columns with ≤30% missing values: {list(low_missing)}")
+            print("Using KNNImputer for these columns")
+            
+            # Use KNN imputation for columns with few missing values
+            imp = KNNImputer(
+                n_neighbors=5,
+                weights='distance'
+            )
+            data[low_missing] = imp.fit_transform(data[low_missing])
+        
+        # For any remaining NaN values (if any), use forward/backward fill
+        remaining_nulls = data.isnull().sum().sum()
+        if remaining_nulls > 0:
+            print(f"Filling {remaining_nulls} remaining missing values with ffill/bfill")
+            data = data.ffill().bfill()
+        
         return data
     
     def _remove_outliers(self, data: pd.DataFrame) -> pd.DataFrame:
         """Remove outliers using RobustScaler."""
+        data = data.copy()
         scaler = RobustScaler()
         cols_to_scale = ['Open', 'High', 'Low', 'Close', 'Volume']
         
         for col in cols_to_scale:
             if col in data.columns:
-                scaled_data = scaler.fit_transform(data[col].values.reshape(-1, 1))
-                # Remove data points that are more than 3 scaled units away from median
-                mask = np.abs(scaled_data) <= 3.0
-                data.loc[~mask.ravel(), col] = np.nan
+                # Ensure data is numeric
+                data[col] = pd.to_numeric(data[col], errors='coerce')
+                if data[col].notnull().any():  # Only scale if we have valid numeric data
+                    scaled_data = scaler.fit_transform(data[col].values.reshape(-1, 1))
+                    # Remove data points that are more than 3 scaled units away from median
+                    mask = np.abs(scaled_data) <= 3.0
+                    data.loc[~mask.ravel(), col] = np.nan
                 
         # Fill removed outliers
         data = self._handle_missing_values(data)
