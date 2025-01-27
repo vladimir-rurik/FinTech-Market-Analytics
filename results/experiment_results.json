@@ -1026,5 +1026,853 @@
                 "random_state": 42
             }
         }
+    ],
+    "BTC-USD_advanced": [
+        {
+            "timestamp": "2025-01-28 00:37:04",
+            "model_name": "advanced_technical_{'rsi_period': 14, 'adx_threshold': 25}",
+            "train_metrics": {
+                "total_return": 0.0,
+                "annual_return": 0.0,
+                "volatility": 0.0,
+                "sharpe_ratio": 0,
+                "sortino_ratio": 0,
+                "max_drawdown": 0.0,
+                "win_rate": 0.0
+            },
+            "test_metrics": {
+                "total_return": 0.0,
+                "annual_return": 0.0,
+                "volatility": 0.0,
+                "sharpe_ratio": 0,
+                "sortino_ratio": 0,
+                "max_drawdown": 0.0,
+                "win_rate": 0.0
+            },
+            "validation_metrics": {
+                "total_return": 0.0,
+                "annual_return": 0.0,
+                "volatility": 0.0,
+                "sharpe_ratio": 0,
+                "sortino_ratio": 0,
+                "max_drawdown": 0.0,
+                "win_rate": 0.0
+            },
+            "parameters": {
+                "rsi_period": 14,
+                "adx_threshold": 25
+            }
+        },
+        {
+            "timestamp": "2025-01-28 00:37:04",
+            "model_name": "advanced_technical_{'rsi_period': 21, 'adx_threshold': 20}",
+            "train_metrics": {
+                "total_return": 0.0,
+                "annual_return": 0.0,
+                "volatility": 0.0,
+                "sharpe_ratio": 0,
+                "sortino_ratio": 0,
+                "max_drawdown": 0.0,
+                "win_rate": 0.0
+            },
+            "test_metrics": {
+                "total_return": 0.0,
+                "annual_return": 0.0,
+                "volatility": 0.0,
+                "sharpe_ratio": 0,
+                "sortino_ratio": 0,
+                "max_drawdown": 0.0,
+                "win_rate": 0.0
+            },
+            "validation_metrics": {
+                "total_return": 0.0,
+                "annual_return": 0.0,
+                "volatility": 0.0,
+                "sharpe_ratio": 0,
+                "sortino_ratio": 0,
+                "max_drawdown": 0.0,
+                "win_rate": 0.0
+            },
+            "parameters": {
+                "rsi_period": 21,
+                "adx_threshold": 20
+            }
+        },
+        {
+            "timestamp": "2025-01-28 00:37:04",
+            "model_name": "advanced_technical_{'rsi_period': 9, 'adx_threshold': 30}",
+            "train_metrics": {
+                "total_return": 0.0,
+                "annual_return": 0.0,
+                "volatility": 0.0,
+                "sharpe_ratio": 0,
+                "sortino_ratio": 0,
+                "max_drawdown": 0.0,
+                "win_rate": 0.0
+            },
+            "test_metrics": {
+                "total_return": 0.0,
+                "annual_return": 0.0,
+                "volatility": 0.0,
+                "sharpe_ratio": 0,
+                "sortino_ratio": 0,
+                "max_drawdown": 0.0,
+                "win_rate": 0.0
+            },
+            "validation_metrics": {
+                "total_return": 0.0,
+                "annual_return": 0.0,
+                "volatility": 0.0,
+                "sharpe_ratio": 0,
+                "sortino_ratio": 0,
+                "max_drawdown": 0.0,
+                "win_rate": 0.0
+            },
+            "parameters": {
+                "rsi_period": 9,
+                "adx_threshold": 30
+            }
+        },
+        {
+            "timestamp": "2025-01-28 01:31:06",
+            "model_name": "advanced_technical_{'rsi_period': 14, 'adx_threshold': 25}",
+            "train_metrics": {
+                "total_return": 0.0,
+                "annual_return": 0.0,
+                "volatility": 0.0,
+                "sharpe_ratio": 0,
+                "sortino_ratio": 0,
+                "max_drawdown": 0.0,
+                "win_rate": 0.0
+            },
+            "test_metrics": {
+                "total_return": 0.0,
+                "annual_return": 0.0,
+                "volatility": 0.0,
+                "sharpe_ratio": 0,
+                "sortino_ratio": 0,
+                "max_drawdown": 0.0,
+                "win_rate": 0.0
+            },
+            "validation_metrics": {
+                "total_return": 0.0,
+                "annual_return": 0.0,
+                "volatility": 0.0,
+                "sharpe_ratio": 0,
+                "sortino_ratio": 0,
+                "max_drawdown": 0.0,
+                "win_rate": 0.0
+            },
+            "parameters": {
+                "rsi_period": 14,
+                "adx_threshold": 25
+            }
+        },
+        {
+            "timestamp": "2025-01-28 01:31:06",
+            "model_name": "advanced_technical_{'rsi_period': 21, 'adx_threshold': 20}",
+            "train_metrics": {
+                "total_return": 0.0,
+                "annual_return": 0.0,
+                "volatility": 0.0,
+                "sharpe_ratio": 0,
+                "sortino_ratio": 0,
+                "max_drawdown": 0.0,
+                "win_rate": 0.0
+            },
+            "test_metrics": {
+                "total_return": 0.0,
+                "annual_return": 0.0,
+                "volatility": 0.0,
+                "sharpe_ratio": 0,
+                "sortino_ratio": 0,
+                "max_drawdown": 0.0,
+                "win_rate": 0.0
+            },
+            "validation_metrics": {
+                "total_return": 0.0,
+                "annual_return": 0.0,
+                "volatility": 0.0,
+                "sharpe_ratio": 0,
+                "sortino_ratio": 0,
+                "max_drawdown": 0.0,
+                "win_rate": 0.0
+            },
+            "parameters": {
+                "rsi_period": 21,
+                "adx_threshold": 20
+            }
+        },
+        {
+            "timestamp": "2025-01-28 01:31:06",
+            "model_name": "advanced_technical_{'rsi_period': 9, 'adx_threshold': 30}",
+            "train_metrics": {
+                "total_return": 0.0,
+                "annual_return": 0.0,
+                "volatility": 0.0,
+                "sharpe_ratio": 0,
+                "sortino_ratio": 0,
+                "max_drawdown": 0.0,
+                "win_rate": 0.0
+            },
+            "test_metrics": {
+                "total_return": 0.0,
+                "annual_return": 0.0,
+                "volatility": 0.0,
+                "sharpe_ratio": 0,
+                "sortino_ratio": 0,
+                "max_drawdown": 0.0,
+                "win_rate": 0.0
+            },
+            "validation_metrics": {
+                "total_return": 0.0,
+                "annual_return": 0.0,
+                "volatility": 0.0,
+                "sharpe_ratio": 0,
+                "sortino_ratio": 0,
+                "max_drawdown": 0.0,
+                "win_rate": 0.0
+            },
+            "parameters": {
+                "rsi_period": 9,
+                "adx_threshold": 30
+            }
+        }
+    ],
+    "ETH-USD_advanced": [
+        {
+            "timestamp": "2025-01-28 00:37:15",
+            "model_name": "advanced_technical_{'rsi_period': 14, 'adx_threshold': 25}",
+            "train_metrics": {
+                "total_return": 0.0,
+                "annual_return": 0.0,
+                "volatility": 0.0,
+                "sharpe_ratio": 0,
+                "sortino_ratio": 0,
+                "max_drawdown": 0.0,
+                "win_rate": 0.0
+            },
+            "test_metrics": {
+                "total_return": 0.0,
+                "annual_return": 0.0,
+                "volatility": 0.0,
+                "sharpe_ratio": 0,
+                "sortino_ratio": 0,
+                "max_drawdown": 0.0,
+                "win_rate": 0.0
+            },
+            "validation_metrics": {
+                "total_return": 0.0,
+                "annual_return": 0.0,
+                "volatility": 0.0,
+                "sharpe_ratio": 0,
+                "sortino_ratio": 0,
+                "max_drawdown": 0.0,
+                "win_rate": 0.0
+            },
+            "parameters": {
+                "rsi_period": 14,
+                "adx_threshold": 25
+            }
+        },
+        {
+            "timestamp": "2025-01-28 00:37:15",
+            "model_name": "advanced_technical_{'rsi_period': 21, 'adx_threshold': 20}",
+            "train_metrics": {
+                "total_return": 0.0,
+                "annual_return": 0.0,
+                "volatility": 0.0,
+                "sharpe_ratio": 0,
+                "sortino_ratio": 0,
+                "max_drawdown": 0.0,
+                "win_rate": 0.0
+            },
+            "test_metrics": {
+                "total_return": 0.0,
+                "annual_return": 0.0,
+                "volatility": 0.0,
+                "sharpe_ratio": 0,
+                "sortino_ratio": 0,
+                "max_drawdown": 0.0,
+                "win_rate": 0.0
+            },
+            "validation_metrics": {
+                "total_return": 0.0,
+                "annual_return": 0.0,
+                "volatility": 0.0,
+                "sharpe_ratio": 0,
+                "sortino_ratio": 0,
+                "max_drawdown": 0.0,
+                "win_rate": 0.0
+            },
+            "parameters": {
+                "rsi_period": 21,
+                "adx_threshold": 20
+            }
+        },
+        {
+            "timestamp": "2025-01-28 00:37:15",
+            "model_name": "advanced_technical_{'rsi_period': 9, 'adx_threshold': 30}",
+            "train_metrics": {
+                "total_return": 0.0,
+                "annual_return": 0.0,
+                "volatility": 0.0,
+                "sharpe_ratio": 0,
+                "sortino_ratio": 0,
+                "max_drawdown": 0.0,
+                "win_rate": 0.0
+            },
+            "test_metrics": {
+                "total_return": 0.0,
+                "annual_return": 0.0,
+                "volatility": 0.0,
+                "sharpe_ratio": 0,
+                "sortino_ratio": 0,
+                "max_drawdown": 0.0,
+                "win_rate": 0.0
+            },
+            "validation_metrics": {
+                "total_return": 0.0,
+                "annual_return": 0.0,
+                "volatility": 0.0,
+                "sharpe_ratio": 0,
+                "sortino_ratio": 0,
+                "max_drawdown": 0.0,
+                "win_rate": 0.0
+            },
+            "parameters": {
+                "rsi_period": 9,
+                "adx_threshold": 30
+            }
+        },
+        {
+            "timestamp": "2025-01-28 01:31:17",
+            "model_name": "advanced_technical_{'rsi_period': 14, 'adx_threshold': 25}",
+            "train_metrics": {
+                "total_return": 0.0,
+                "annual_return": 0.0,
+                "volatility": 0.0,
+                "sharpe_ratio": 0,
+                "sortino_ratio": 0,
+                "max_drawdown": 0.0,
+                "win_rate": 0.0
+            },
+            "test_metrics": {
+                "total_return": 0.0,
+                "annual_return": 0.0,
+                "volatility": 0.0,
+                "sharpe_ratio": 0,
+                "sortino_ratio": 0,
+                "max_drawdown": 0.0,
+                "win_rate": 0.0
+            },
+            "validation_metrics": {
+                "total_return": 0.0,
+                "annual_return": 0.0,
+                "volatility": 0.0,
+                "sharpe_ratio": 0,
+                "sortino_ratio": 0,
+                "max_drawdown": 0.0,
+                "win_rate": 0.0
+            },
+            "parameters": {
+                "rsi_period": 14,
+                "adx_threshold": 25
+            }
+        },
+        {
+            "timestamp": "2025-01-28 01:31:17",
+            "model_name": "advanced_technical_{'rsi_period': 21, 'adx_threshold': 20}",
+            "train_metrics": {
+                "total_return": 0.0,
+                "annual_return": 0.0,
+                "volatility": 0.0,
+                "sharpe_ratio": 0,
+                "sortino_ratio": 0,
+                "max_drawdown": 0.0,
+                "win_rate": 0.0
+            },
+            "test_metrics": {
+                "total_return": 0.0,
+                "annual_return": 0.0,
+                "volatility": 0.0,
+                "sharpe_ratio": 0,
+                "sortino_ratio": 0,
+                "max_drawdown": 0.0,
+                "win_rate": 0.0
+            },
+            "validation_metrics": {
+                "total_return": 0.0,
+                "annual_return": 0.0,
+                "volatility": 0.0,
+                "sharpe_ratio": 0,
+                "sortino_ratio": 0,
+                "max_drawdown": 0.0,
+                "win_rate": 0.0
+            },
+            "parameters": {
+                "rsi_period": 21,
+                "adx_threshold": 20
+            }
+        },
+        {
+            "timestamp": "2025-01-28 01:31:17",
+            "model_name": "advanced_technical_{'rsi_period': 9, 'adx_threshold': 30}",
+            "train_metrics": {
+                "total_return": 0.0,
+                "annual_return": 0.0,
+                "volatility": 0.0,
+                "sharpe_ratio": 0,
+                "sortino_ratio": 0,
+                "max_drawdown": 0.0,
+                "win_rate": 0.0
+            },
+            "test_metrics": {
+                "total_return": 0.0,
+                "annual_return": 0.0,
+                "volatility": 0.0,
+                "sharpe_ratio": 0,
+                "sortino_ratio": 0,
+                "max_drawdown": 0.0,
+                "win_rate": 0.0
+            },
+            "validation_metrics": {
+                "total_return": 0.0,
+                "annual_return": 0.0,
+                "volatility": 0.0,
+                "sharpe_ratio": 0,
+                "sortino_ratio": 0,
+                "max_drawdown": 0.0,
+                "win_rate": 0.0
+            },
+            "parameters": {
+                "rsi_period": 9,
+                "adx_threshold": 30
+            }
+        }
+    ],
+    "SOL-USD_advanced": [
+        {
+            "timestamp": "2025-01-28 00:37:20",
+            "model_name": "advanced_technical_{'rsi_period': 14, 'adx_threshold': 25}",
+            "train_metrics": {
+                "total_return": 0.0,
+                "annual_return": 0.0,
+                "volatility": 0.0,
+                "sharpe_ratio": 0,
+                "sortino_ratio": 0,
+                "max_drawdown": 0.0,
+                "win_rate": 0.0
+            },
+            "test_metrics": {
+                "total_return": 0.0,
+                "annual_return": 0.0,
+                "volatility": 0.0,
+                "sharpe_ratio": 0,
+                "sortino_ratio": 0,
+                "max_drawdown": 0.0,
+                "win_rate": 0.0
+            },
+            "validation_metrics": {
+                "total_return": 0.0,
+                "annual_return": 0.0,
+                "volatility": 0.0,
+                "sharpe_ratio": 0,
+                "sortino_ratio": 0,
+                "max_drawdown": 0.0,
+                "win_rate": 0.0
+            },
+            "parameters": {
+                "rsi_period": 14,
+                "adx_threshold": 25
+            }
+        },
+        {
+            "timestamp": "2025-01-28 00:37:20",
+            "model_name": "advanced_technical_{'rsi_period': 21, 'adx_threshold': 20}",
+            "train_metrics": {
+                "total_return": 0.0,
+                "annual_return": 0.0,
+                "volatility": 0.0,
+                "sharpe_ratio": 0,
+                "sortino_ratio": 0,
+                "max_drawdown": 0.0,
+                "win_rate": 0.0
+            },
+            "test_metrics": {
+                "total_return": 0.0,
+                "annual_return": 0.0,
+                "volatility": 0.0,
+                "sharpe_ratio": 0,
+                "sortino_ratio": 0,
+                "max_drawdown": 0.0,
+                "win_rate": 0.0
+            },
+            "validation_metrics": {
+                "total_return": 0.0,
+                "annual_return": 0.0,
+                "volatility": 0.0,
+                "sharpe_ratio": 0,
+                "sortino_ratio": 0,
+                "max_drawdown": 0.0,
+                "win_rate": 0.0
+            },
+            "parameters": {
+                "rsi_period": 21,
+                "adx_threshold": 20
+            }
+        },
+        {
+            "timestamp": "2025-01-28 00:37:20",
+            "model_name": "advanced_technical_{'rsi_period': 9, 'adx_threshold': 30}",
+            "train_metrics": {
+                "total_return": 0.0,
+                "annual_return": 0.0,
+                "volatility": 0.0,
+                "sharpe_ratio": 0,
+                "sortino_ratio": 0,
+                "max_drawdown": 0.0,
+                "win_rate": 0.0
+            },
+            "test_metrics": {
+                "total_return": 0.0,
+                "annual_return": 0.0,
+                "volatility": 0.0,
+                "sharpe_ratio": 0,
+                "sortino_ratio": 0,
+                "max_drawdown": 0.0,
+                "win_rate": 0.0
+            },
+            "validation_metrics": {
+                "total_return": 0.0,
+                "annual_return": 0.0,
+                "volatility": 0.0,
+                "sharpe_ratio": 0,
+                "sortino_ratio": 0,
+                "max_drawdown": 0.0,
+                "win_rate": 0.0
+            },
+            "parameters": {
+                "rsi_period": 9,
+                "adx_threshold": 30
+            }
+        },
+        {
+            "timestamp": "2025-01-28 01:31:21",
+            "model_name": "advanced_technical_{'rsi_period': 14, 'adx_threshold': 25}",
+            "train_metrics": {
+                "total_return": 0.0,
+                "annual_return": 0.0,
+                "volatility": 0.0,
+                "sharpe_ratio": 0,
+                "sortino_ratio": 0,
+                "max_drawdown": 0.0,
+                "win_rate": 0.0
+            },
+            "test_metrics": {
+                "total_return": 0.0,
+                "annual_return": 0.0,
+                "volatility": 0.0,
+                "sharpe_ratio": 0,
+                "sortino_ratio": 0,
+                "max_drawdown": 0.0,
+                "win_rate": 0.0
+            },
+            "validation_metrics": {
+                "total_return": 0.0,
+                "annual_return": 0.0,
+                "volatility": 0.0,
+                "sharpe_ratio": 0,
+                "sortino_ratio": 0,
+                "max_drawdown": 0.0,
+                "win_rate": 0.0
+            },
+            "parameters": {
+                "rsi_period": 14,
+                "adx_threshold": 25
+            }
+        },
+        {
+            "timestamp": "2025-01-28 01:31:21",
+            "model_name": "advanced_technical_{'rsi_period': 21, 'adx_threshold': 20}",
+            "train_metrics": {
+                "total_return": 0.0,
+                "annual_return": 0.0,
+                "volatility": 0.0,
+                "sharpe_ratio": 0,
+                "sortino_ratio": 0,
+                "max_drawdown": 0.0,
+                "win_rate": 0.0
+            },
+            "test_metrics": {
+                "total_return": 0.0,
+                "annual_return": 0.0,
+                "volatility": 0.0,
+                "sharpe_ratio": 0,
+                "sortino_ratio": 0,
+                "max_drawdown": 0.0,
+                "win_rate": 0.0
+            },
+            "validation_metrics": {
+                "total_return": 0.0,
+                "annual_return": 0.0,
+                "volatility": 0.0,
+                "sharpe_ratio": 0,
+                "sortino_ratio": 0,
+                "max_drawdown": 0.0,
+                "win_rate": 0.0
+            },
+            "parameters": {
+                "rsi_period": 21,
+                "adx_threshold": 20
+            }
+        },
+        {
+            "timestamp": "2025-01-28 01:31:21",
+            "model_name": "advanced_technical_{'rsi_period': 9, 'adx_threshold': 30}",
+            "train_metrics": {
+                "total_return": 0.0,
+                "annual_return": 0.0,
+                "volatility": 0.0,
+                "sharpe_ratio": 0,
+                "sortino_ratio": 0,
+                "max_drawdown": 0.0,
+                "win_rate": 0.0
+            },
+            "test_metrics": {
+                "total_return": 0.0,
+                "annual_return": 0.0,
+                "volatility": 0.0,
+                "sharpe_ratio": 0,
+                "sortino_ratio": 0,
+                "max_drawdown": 0.0,
+                "win_rate": 0.0
+            },
+            "validation_metrics": {
+                "total_return": 0.0,
+                "annual_return": 0.0,
+                "volatility": 0.0,
+                "sharpe_ratio": 0,
+                "sortino_ratio": 0,
+                "max_drawdown": 0.0,
+                "win_rate": 0.0
+            },
+            "parameters": {
+                "rsi_period": 9,
+                "adx_threshold": 30
+            }
+        }
+    ],
+    "XRP-USD_advanced": [
+        {
+            "timestamp": "2025-01-28 00:37:24",
+            "model_name": "advanced_technical_{'rsi_period': 14, 'adx_threshold': 25}",
+            "train_metrics": {
+                "total_return": 0.0,
+                "annual_return": 0.0,
+                "volatility": 0.0,
+                "sharpe_ratio": 0,
+                "sortino_ratio": 0,
+                "max_drawdown": 0.0,
+                "win_rate": 0.0
+            },
+            "test_metrics": {
+                "total_return": 0.0,
+                "annual_return": 0.0,
+                "volatility": 0.0,
+                "sharpe_ratio": 0,
+                "sortino_ratio": 0,
+                "max_drawdown": 0.0,
+                "win_rate": 0.0
+            },
+            "validation_metrics": {
+                "total_return": 0.0,
+                "annual_return": 0.0,
+                "volatility": 0.0,
+                "sharpe_ratio": 0,
+                "sortino_ratio": 0,
+                "max_drawdown": 0.0,
+                "win_rate": 0.0
+            },
+            "parameters": {
+                "rsi_period": 14,
+                "adx_threshold": 25
+            }
+        },
+        {
+            "timestamp": "2025-01-28 00:37:25",
+            "model_name": "advanced_technical_{'rsi_period': 21, 'adx_threshold': 20}",
+            "train_metrics": {
+                "total_return": 0.0,
+                "annual_return": 0.0,
+                "volatility": 0.0,
+                "sharpe_ratio": 0,
+                "sortino_ratio": 0,
+                "max_drawdown": 0.0,
+                "win_rate": 0.0
+            },
+            "test_metrics": {
+                "total_return": 0.0,
+                "annual_return": 0.0,
+                "volatility": 0.0,
+                "sharpe_ratio": 0,
+                "sortino_ratio": 0,
+                "max_drawdown": 0.0,
+                "win_rate": 0.0
+            },
+            "validation_metrics": {
+                "total_return": 0.0,
+                "annual_return": 0.0,
+                "volatility": 0.0,
+                "sharpe_ratio": 0,
+                "sortino_ratio": 0,
+                "max_drawdown": 0.0,
+                "win_rate": 0.0
+            },
+            "parameters": {
+                "rsi_period": 21,
+                "adx_threshold": 20
+            }
+        },
+        {
+            "timestamp": "2025-01-28 00:37:25",
+            "model_name": "advanced_technical_{'rsi_period': 9, 'adx_threshold': 30}",
+            "train_metrics": {
+                "total_return": 0.0,
+                "annual_return": 0.0,
+                "volatility": 0.0,
+                "sharpe_ratio": 0,
+                "sortino_ratio": 0,
+                "max_drawdown": 0.0,
+                "win_rate": 0.0
+            },
+            "test_metrics": {
+                "total_return": 0.0,
+                "annual_return": 0.0,
+                "volatility": 0.0,
+                "sharpe_ratio": 0,
+                "sortino_ratio": 0,
+                "max_drawdown": 0.0,
+                "win_rate": 0.0
+            },
+            "validation_metrics": {
+                "total_return": 0.0,
+                "annual_return": 0.0,
+                "volatility": 0.0,
+                "sharpe_ratio": 0,
+                "sortino_ratio": 0,
+                "max_drawdown": 0.0,
+                "win_rate": 0.0
+            },
+            "parameters": {
+                "rsi_period": 9,
+                "adx_threshold": 30
+            }
+        },
+        {
+            "timestamp": "2025-01-28 01:31:25",
+            "model_name": "advanced_technical_{'rsi_period': 14, 'adx_threshold': 25}",
+            "train_metrics": {
+                "total_return": 0.0,
+                "annual_return": 0.0,
+                "volatility": 0.0,
+                "sharpe_ratio": 0,
+                "sortino_ratio": 0,
+                "max_drawdown": 0.0,
+                "win_rate": 0.0
+            },
+            "test_metrics": {
+                "total_return": 0.0,
+                "annual_return": 0.0,
+                "volatility": 0.0,
+                "sharpe_ratio": 0,
+                "sortino_ratio": 0,
+                "max_drawdown": 0.0,
+                "win_rate": 0.0
+            },
+            "validation_metrics": {
+                "total_return": 0.0,
+                "annual_return": 0.0,
+                "volatility": 0.0,
+                "sharpe_ratio": 0,
+                "sortino_ratio": 0,
+                "max_drawdown": 0.0,
+                "win_rate": 0.0
+            },
+            "parameters": {
+                "rsi_period": 14,
+                "adx_threshold": 25
+            }
+        },
+        {
+            "timestamp": "2025-01-28 01:31:25",
+            "model_name": "advanced_technical_{'rsi_period': 21, 'adx_threshold': 20}",
+            "train_metrics": {
+                "total_return": 0.0,
+                "annual_return": 0.0,
+                "volatility": 0.0,
+                "sharpe_ratio": 0,
+                "sortino_ratio": 0,
+                "max_drawdown": 0.0,
+                "win_rate": 0.0
+            },
+            "test_metrics": {
+                "total_return": 0.0,
+                "annual_return": 0.0,
+                "volatility": 0.0,
+                "sharpe_ratio": 0,
+                "sortino_ratio": 0,
+                "max_drawdown": 0.0,
+                "win_rate": 0.0
+            },
+            "validation_metrics": {
+                "total_return": 0.0,
+                "annual_return": 0.0,
+                "volatility": 0.0,
+                "sharpe_ratio": 0,
+                "sortino_ratio": 0,
+                "max_drawdown": 0.0,
+                "win_rate": 0.0
+            },
+            "parameters": {
+                "rsi_period": 21,
+                "adx_threshold": 20
+            }
+        },
+        {
+            "timestamp": "2025-01-28 01:31:25",
+            "model_name": "advanced_technical_{'rsi_period': 9, 'adx_threshold': 30}",
+            "train_metrics": {
+                "total_return": 0.0,
+                "annual_return": 0.0,
+                "volatility": 0.0,
+                "sharpe_ratio": 0,
+                "sortino_ratio": 0,
+                "max_drawdown": 0.0,
+                "win_rate": 0.0
+            },
+            "test_metrics": {
+                "total_return": 0.0,
+                "annual_return": 0.0,
+                "volatility": 0.0,
+                "sharpe_ratio": 0,
+                "sortino_ratio": 0,
+                "max_drawdown": 0.0,
+                "win_rate": 0.0
+            },
+            "validation_metrics": {
+                "total_return": 0.0,
+                "annual_return": 0.0,
+                "volatility": 0.0,
+                "sharpe_ratio": 0,
+                "sortino_ratio": 0,
+                "max_drawdown": 0.0,
+                "win_rate": 0.0
+            },
+            "parameters": {
+                "rsi_period": 9,
+                "adx_threshold": 30
+            }
+        }
     ]
 }

@@ -62,22 +62,35 @@ def trend_data():
     dates = pd.date_range(start='2024-01-01', end='2024-12-31', freq='D')
     data = pd.DataFrame(index=dates)
     
-    # Generate trending price data
-    trend = np.linspace(0, 1, len(dates))  # Upward trend
+    # Generate a clear uptrend with small noise
+    trend = np.linspace(0, 1, len(dates))  # steadily increasing
     noise = np.random.normal(0, 0.01, len(dates))
     data['Close'] = 100 * (1 + trend + noise)
     data['Open'] = data['Close'] * (1 + np.random.normal(0, 0.005, len(dates)))
     data['High'] = data['Close'] * 1.01
-    data['Low'] = data['Close'] * 0.99
-    data['Volume'] = 1000000 * (1 + trend + np.random.normal(0, 0.1, len(dates)))
+    data['Low']  = data['Close'] * 0.99
+    data['Volume'] = 1_000_000 * (1 + trend + np.random.normal(0, 0.1, len(dates)))
     
-    # Add indicators showing strong trend
+    # Key indicators used by AdvancedTechnicalStrategy
     data['sma_20'] = data['Close'].rolling(window=20).mean()
     data['sma_50'] = data['Close'].rolling(window=50).mean()
-    data['adx'] = 30 + np.random.uniform(0, 20, len(dates))  # Strong trend
-    data['rsi_14'] = 60 + np.random.uniform(-10, 10, len(dates))  # Bullish
+    data['adx'] = 30 + np.random.uniform(0, 20, len(dates))  # always above 25
+    data['rsi_14'] = 60 + np.random.uniform(-5, 5, len(dates))  # mostly ~60
+
+    # ADD these to avoid "Error generating signals: 'macd'"
+    data['macd'] = 1.5 + np.random.normal(0, 0.05, len(dates))
+    data['macd_signal'] = 1.0 + np.random.normal(0, 0.05, len(dates))
+
+    # Ensure volume trend is mostly positive
+    data['price_vol_corr'] = np.random.uniform(0.1, 0.9, len(dates))
+
+    # For bullish pattern or squeezes
+    data['hammer'] = np.random.choice([0, 1], size=len(dates), p=[0.7, 0.3])
+    data['shooting_star'] = np.zeros(len(dates))
+    data['bb_width_20'] = np.random.uniform(0.01, 0.05, len(dates))
     
     return data
+
 
 def test_strategy_initialization():
     """Test strategy initialization with default parameters."""
