@@ -159,7 +159,7 @@ class DataPreprocessor:
         if remaining_nulls > 0:
             print(f"Filling {remaining_nulls} remaining missing values with ffill/bfill")
             data = data.ffill().bfill()
-        
+
         return data
     
     def _remove_outliers(self, data: pd.DataFrame) -> pd.DataFrame:
