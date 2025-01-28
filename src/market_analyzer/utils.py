@@ -36,38 +36,28 @@ def prepare_data(
     
     return df
 
-def validate_data(df: pd.DataFrame) -> Dict[str, Union[bool, List[str]]]:
+def validate_data(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Validate data quality and return validation results.
-
-    Args:
-        df: Input DataFrame
-
-    Returns:
-        Dictionary containing validation results
+    Validate that `df` is suitable for processing.
+    If invalid, raise ValueError.
+    Otherwise, return the same DataFrame unmodified.
     """
-    results = {
-        "is_valid": True,
-        "issues": [],
-    }
-    
-    # Check for missing values
-    missing = df.isnull().sum()
-    if missing.any():
-        results["is_valid"] = False
-        results["issues"].append("Missing values detected")
-    
-    # Check for duplicated indices
-    if df.index.duplicated().any():
-        results["is_valid"] = False
-        results["issues"].append("Duplicated timestamps detected")
-    
-    # Check for negative prices
-    if (df['Close'] < 0).any():
-        results["is_valid"] = False
-        results["issues"].append("Negative prices detected")
-    
-    return results
+
+    if df is None:
+        raise ValueError("Received None instead of a DataFrame")
+    if not isinstance(df, pd.DataFrame):
+        raise ValueError(f"Expected pd.DataFrame, got {type(df)}")
+
+    if df.empty:
+        raise ValueError("DataFrame is empty")
+
+    required_cols = ["Close", "Volume"]
+    missing = [c for c in required_cols if c not in df.columns]
+    if missing:
+        raise ValueError(f"Missing columns: {missing}")
+
+    # If all checks pass:
+    return df
 
 def calculate_returns(
     df: pd.DataFrame,
