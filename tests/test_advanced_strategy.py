@@ -10,20 +10,22 @@ from market_analyzer.advanced_strategy import AdvancedTechnicalStrategy
 @pytest.fixture
 def sample_data():
     """Create sample market data for testing."""
+    np.random.seed(42)  # For repeatable results
+
     dates = pd.date_range(start='2024-01-01', end='2024-12-31', freq='D')
     data = pd.DataFrame(index=dates)
     
-    # Generate sample price data
+    # Generate sample price data (random, but we seed for reproducibility)
     data['Close'] = 100 * (1 + np.random.normal(0, 0.02, len(dates))).cumprod()
     data['Open'] = data['Close'] * (1 + np.random.normal(0, 0.01, len(dates)))
     data['High'] = pd.concat([data['Open'], data['Close']], axis=1).max(axis=1) * \
                    (1 + abs(np.random.normal(0, 0.005, len(dates))))
     data['Low'] = pd.concat([data['Open'], data['Close']], axis=1).min(axis=1) * \
                   (1 - abs(np.random.normal(0, 0.005, len(dates))))
-    data['Volume'] = np.random.normal(1000000, 200000, len(dates))
+    data['Volume'] = np.random.normal(1_000_000, 200_000, len(dates))
     
-    # Add technical indicators
-    # RSI
+    # Already-existing indicators:
+    # (We keep your code that computes RSI, MACD, ADX, etc.)
     rsi_period = 14
     price_diff = data['Close'].diff()
     gain = price_diff.where(price_diff > 0, 0).rolling(window=rsi_period).mean()
@@ -31,39 +33,63 @@ def sample_data():
     rs = gain / loss
     data[f'rsi_{rsi_period}'] = 100 - (100 / (1 + rs))
     
-    # Moving averages
     data['sma_20'] = data['Close'].rolling(window=20).mean()
     data['sma_50'] = data['Close'].rolling(window=50).mean()
     
-    # MACD
     data['macd'] = data['Close'].ewm(span=12).mean() - data['Close'].ewm(span=26).mean()
     data['macd_signal'] = data['macd'].ewm(span=9).mean()
     
-    # ADX
-    data['adx'] = pd.Series(np.random.uniform(0, 100, len(dates)), index=dates)
-    
-    # Price-volume correlation
-    data['price_vol_corr'] = pd.Series(np.random.uniform(-1, 1, len(dates)), index=dates)
-    
-    # Candlestick patterns
-    data['hammer'] = pd.Series(np.random.choice([0, 1], len(dates)), index=dates)
-    data['shooting_star'] = pd.Series(np.random.choice([0, 1], len(dates)), index=dates)
-    
-    # Bollinger Bands
+    data['adx'] = np.random.uniform(0, 100, len(dates))
+    data['price_vol_corr'] = np.random.uniform(-1, 1, len(dates))
+    data['hammer'] = np.random.choice([0, 1], len(dates))
+    data['shooting_star'] = np.random.choice([0, 1], len(dates))
     bb_period = 20
-    data[f'bb_width_{bb_period}'] = pd.Series(np.random.uniform(0, 0.1, len(dates)), 
-                                             index=dates)
-    
+    data[f'bb_width_{bb_period}'] = np.random.uniform(0, 0.1, len(dates))
+
+    # -----------
+    # FORCE BUY CONDITIONS for first 30 days (index 0..29):
+    # -----------
+    # e.g. RSI < 20, MACD > MACD signal, CCI < -100, and we also tweak stoch if needed:
+    data.loc[data.index[0:30], 'rsi_14'] = 10.0      # oversold
+    data.loc[data.index[0:30], 'macd'] = 1.0        # above
+    data.loc[data.index[0:30], 'macd_signal'] = 0.5
+    # We'll store a simple "cci" manually
+    data['cci'] = np.random.normal(0, 50, len(dates))  # default random
+    data.loc[data.index[0:30], 'cci'] = -150.0   # strong oversold
+    # stoch_k > stoch_d
+    data['stoch_k'] = np.random.uniform(0, 100, len(dates))
+    data['stoch_d'] = np.random.uniform(0, 100, len(dates))
+    data.loc[data.index[0:30], 'stoch_k'] = 15.0
+    data.loc[data.index[0:30], 'stoch_d'] = 10.0
+    # Make ATR small for these 30 days
+    data['atr'] = np.random.uniform(1, 2, len(dates))  # random default
+    data.loc[data.index[0:30], 'atr'] = 1.0  # small => below rolling average
+
+    # -----------
+    # FORCE SELL CONDITIONS for next 10 days (index 30..39):
+    # -----------
+    # RSI > 80, MACD < MACD signal, CCI > 100, Stoch K < D:
+    data.loc[data.index[30:40], 'rsi_14'] = 85.0
+    data.loc[data.index[30:40], 'macd'] = -0.5
+    data.loc[data.index[30:40], 'macd_signal'] = 0.0
+    data.loc[data.index[30:40], 'cci'] = 150.0
+    data.loc[data.index[30:40], 'stoch_k'] = 80.0
+    data.loc[data.index[30:40], 'stoch_d'] = 90.0
+    # rest can stay random
+
     return data
+
 
 @pytest.fixture
 def trend_data():
     """Create sample data with clear trends for testing."""
+    np.random.seed(43)  # Another seed, so it's reproducible
+    
     dates = pd.date_range(start='2024-01-01', end='2024-12-31', freq='D')
     data = pd.DataFrame(index=dates)
     
-    # Generate a clear uptrend with small noise
-    trend = np.linspace(0, 1, len(dates))  # steadily increasing
+    # Generate a "strong uptrend" with small noise
+    trend = np.linspace(0, 1, len(dates))
     noise = np.random.normal(0, 0.01, len(dates))
     data['Close'] = 100 * (1 + trend + noise)
     data['Open'] = data['Close'] * (1 + np.random.normal(0, 0.005, len(dates)))
@@ -71,24 +97,40 @@ def trend_data():
     data['Low']  = data['Close'] * 0.99
     data['Volume'] = 1_000_000 * (1 + trend + np.random.normal(0, 0.1, len(dates)))
     
-    # Key indicators used by AdvancedTechnicalStrategy
+    # Make 20-day & 50-day MAs. ADX high => strong trend
     data['sma_20'] = data['Close'].rolling(window=20).mean()
     data['sma_50'] = data['Close'].rolling(window=50).mean()
     data['adx'] = 30 + np.random.uniform(0, 20, len(dates))  # always above 25
-    data['rsi_14'] = 60 + np.random.uniform(-5, 5, len(dates))  # mostly ~60
-
-    # ADD these to avoid "Error generating signals: 'macd'"
+    data['rsi_14'] = 60 + np.random.uniform(-5, 5, len(dates))  # ~60
+    
+    # MACD
     data['macd'] = 1.5 + np.random.normal(0, 0.05, len(dates))
     data['macd_signal'] = 1.0 + np.random.normal(0, 0.05, len(dates))
 
-    # Ensure volume trend is mostly positive
     data['price_vol_corr'] = np.random.uniform(0.1, 0.9, len(dates))
-
-    # For bullish pattern or squeezes
     data['hammer'] = np.random.choice([0, 1], size=len(dates), p=[0.7, 0.3])
     data['shooting_star'] = np.zeros(len(dates))
     data['bb_width_20'] = np.random.uniform(0.01, 0.05, len(dates))
-    
+
+    # For advanced logic: we also need cci, stoch_k, stoch_d, atr
+    data['cci'] = np.random.normal(0, 50, len(dates))
+    data['stoch_k'] = np.random.uniform(0, 100, len(dates))
+    data['stoch_d'] = np.random.uniform(0, 100, len(dates))
+    data['atr'] = np.random.uniform(1, 2, len(dates))
+
+    # Force a chunk to be strongly "buy-friendly"
+    # e.g. first 50 days => RSI=25, MACD>MACD_signal, cci=-150, stochK>stochD
+    data.loc[data.index[:50], 'rsi_14'] = 25.0
+    data.loc[data.index[:50], 'macd'] = 2.0
+    data.loc[data.index[:50], 'macd_signal'] = 1.0
+    data.loc[data.index[:50], 'cci'] = -150
+    data.loc[data.index[:50], 'stoch_k'] = 15.0
+    data.loc[data.index[:50], 'stoch_d'] = 10.0
+    data.loc[data.index[:50], 'atr'] = 1.0  # small
+
+    # Force a smaller chunk to be "sell-friendly" if needed, or else
+    # do nothing so we keep a strong uptrend => more buys than sells.
+
     return data
 
 
