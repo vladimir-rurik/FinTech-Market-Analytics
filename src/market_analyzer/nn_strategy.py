@@ -9,12 +9,14 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import LSTM, Dense
 from tensorflow.keras.optimizers import Adam
 
+# If you have a base class:
 from .strategy import TradingStrategy
+# If you have a data validation function:
 from .utils import validate_data
 
 class NeuralNetworkStrategy(TradingStrategy):
     """
-    A neural network-based trading strategy that outputs signals in {-1, 0, 1}.
+    A neural network-based trading strategy that outputs signals in {-1,0,1}.
     """
 
     def __init__(self, params: Dict = None):
@@ -34,13 +36,13 @@ class NeuralNetworkStrategy(TradingStrategy):
         """
         Build a simple LSTM-based Keras model for classification.
         """
-        seq_len = self.params["seq_length"]
+        seq_len  = self.params["seq_length"]
         num_feat = self.params["num_features"]
         n_hidden = self.params["n_hidden"]
 
         model = Sequential()
         model.add(LSTM(n_hidden, input_shape=(seq_len, num_feat)))
-        model.add(Dense(3, activation="softmax"))  # 3 classes => Sell, Hold, Buy
+        model.add(Dense(3, activation="softmax"))  # 3 classes => Sell,Hold,Buy
         opt = Adam(learning_rate=self.params["learning_rate"])
         model.compile(loss="categorical_crossentropy", optimizer=opt, metrics=["accuracy"])
         self.model = model
@@ -48,7 +50,7 @@ class NeuralNetworkStrategy(TradingStrategy):
     def train(self, X_train: np.ndarray, y_train: np.ndarray,
               X_val: np.ndarray, y_val: np.ndarray) -> Dict:
         """
-        Train the neural network using the provided data.
+        Train the neural network. Return a dict with final metrics.
         """
         if self.model is None:
             self.build_model()
@@ -65,66 +67,62 @@ class NeuralNetworkStrategy(TradingStrategy):
 
     def generate_signals(self, data: pd.DataFrame) -> pd.Series:
         """
-        Generate signals in {-1, 0, 1}:
-          - Validate data => must remain a DataFrame
-          - If model is None or data is empty => return Series of 0
-          - Prepare inference input
-          - Model.predict => argmax => map to {-1,0,1}
-          - Align signals to data.index
+        Generate signals in {-1, 0, 1}.
+        Must return a pandas Series with data.index, never a dict.
         """
-        # 1) Validate data (returns DataFrame or raises ValueError)
+        # Validate data => must remain a DataFrame
         try:
             data = validate_data(data)
         except ValueError as e:
-            print(f"[NN Strategy] Validation error: {e}")
-            return pd.Series(0.0, index=data.index if hasattr(data, 'index') else pd.RangeIndex(0))
+            print("[NN Strategy] Validation error:", e)
+            # Return zeros if invalid
+            return pd.Series(0.0, index=getattr(data, "index", pd.RangeIndex(0)))
 
-        # 2) If data is empty or model is None => return zeros
         if data.empty:
-            print("[NN Strategy] Data is empty, returning zeros.")
+            print("[NN Strategy] Data is empty; returning zeros.")
             return pd.Series(0.0, index=data.index)
 
         if self.model is None:
-            print("[NN Strategy] No trained model, returning zeros.")
+            print("[NN Strategy] Model not trained; returning zeros.")
             return pd.Series(0.0, index=data.index)
 
-        # 3) Build inference data => shape (samples, seq_len, num_feat)
+        # Prepare inference data => shape (samples, seq_len, num_features)
         X = self._prepare_inference_data(data)
-        if X is None or len(X) == 0:
-            print("[NN Strategy] Inference data empty, returning zeros.")
+        if X is None or len(X)==0:
+            print("[NN Strategy] Inference data empty; returning zeros.")
             return pd.Series(0.0, index=data.index)
 
-        # 4) Predict => shape (samples, 3)
+        # Predict => shape (samples, 3)
         preds = self.model.predict(X)
         class_idx = preds.argmax(axis=1)  # in {0,1,2}
 
-        # Map 0=>-1, 1=>0, 2=>1
+        # Map 0->-1, 1->0, 2->1
         idx_map = {0: -1, 1: 0, 2: 1}
         mapped = [idx_map[c] for c in class_idx]
 
-        # 5) Align signals to data index
+        # Align signals with data.index
         signals = pd.Series(0.0, index=data.index)
         offset = self.params["seq_length"] - 1
         n_preds = len(mapped)
         pred_index = data.index[offset : offset + n_preds]
+
         partial_signals = pd.Series(mapped, index=pred_index)
         signals.update(partial_signals)
 
-        # Return signals as a Series, not a dict
         return signals
 
     def _prepare_inference_data(self, data: pd.DataFrame) -> Optional[np.ndarray]:
         """
-        Convert data -> shape (samples, seq_length, num_features).
-        Example uses columns ["Close","High","Low","Open","Volume"].
+        Convert data -> shape (samples, seq_len, num_features).
+        Example columns: ["Close","High","Low","Open","Volume"].
         """
         seq_len = self.params["seq_length"]
-        cols = ["Close","High","Low","Open","Volume"]
-        if any(col not in data.columns for col in cols):
+        feat_cols = ["Close","High","Low","Open","Volume"]
+        if any(c not in data.columns for c in feat_cols):
             print("[NN Strategy] Missing columns for inference.")
             return None
 
-        arr = data[cols].values
+        arr = data[feat_cols].values  # shape (N,5)
         if len(arr) < seq_len:
             return None
 

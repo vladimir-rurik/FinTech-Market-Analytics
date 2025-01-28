@@ -1,12 +1,12 @@
 # FinTech-Market-Analytics
 
-A comprehensive Python toolkit for financial market data analysis, machine learning model development, and trading strategy evaluation. This project provides tools for automated analysis of stock market and cryptocurrency data, including data preprocessing, feature engineering, model training, and performance evaluation.
+A comprehensive Python toolkit for **financial market data analysis**, **machine learning model development**, and **trading strategy evaluation**. This project provides tools for automated analysis of stock market and cryptocurrency data, including data preprocessing, feature engineering, model training, and performance evaluation.
 
 ## Core Components
 
 1. **Data Processing Pipeline**
    - **Data Collection**  
-     - S&P500 stocks historical data  
+     - S&P 500 stocks historical data  
      - Major cryptocurrencies (BTC, ETH, SOL, XRP)  
      - Automatic handling of real-time updates  
    - **Data Preprocessing**  
@@ -18,23 +18,22 @@ A comprehensive Python toolkit for financial market data analysis, machine learn
      - Price-based features (Moving averages, price channels)  
      - Volume-based features (Volume profiles, price-volume correlations)  
      - Volatility indicators (Rolling volatility, volatility regimes)  
-     - Technical indicators (RSI, MACD, Bollinger Bands, and more via TA‑Lib)  
-     - Machine learning–specific features  
+     - Technical indicators (RSI, MACD, Bollinger Bands, etc.) via TA‑Lib  
+     - Machine learning–specific features
 
 2. **Machine Learning Models**
    - **Classical ML Models**  
      - Random Forest Strategy  
      - Gradient Boosting Strategy  
      - Regularized Logistic Strategy  
-   - **Time Series Models**  
+   - **Deep Learning Models**  
+     - LSTM/GRU for time-series  
+     - Transformer-based approaches  
+     - Pretrained neural networks for advanced sequence analysis  
+   - **Time Series Models**
      - SARIMAX for price prediction  
      - Volatility forecasting  
      - Trend analysis  
-   - **Model Management**  
-     - Experiment tracking  
-     - Model versioning  
-     - Performance monitoring  
-     - Hyperparameter optimization  
 
 3. **Trading Strategies**
    - **Technical Analysis Based**  
@@ -46,6 +45,9 @@ A comprehensive Python toolkit for financial market data analysis, machine learn
      - Automated signal generation  
      - Risk management  
      - Portfolio optimization  
+   - **Neural Network Strategies**  
+     - LSTM-based classification/regression for trading actions  
+     - Custom or pretrained architectures
 
 4. **Backtesting & Evaluation**
    - **Data Split Management**  
@@ -59,64 +61,37 @@ A comprehensive Python toolkit for financial market data analysis, machine learn
      - Trading costs consideration  
 
 5. **Visualization & Monitoring**
-   - Feature importance analysis  
-   - Model performance comparison  
-   - Trading signals visualization  
-   - Returns distribution analysis  
-   - Experiment tracking dashboard  
+   - **Dashboards**  
+     - `strategy_analysis.py` or `nn_dashboard.py` for interactive charts  
+     - Plot signals, portfolio values, distribution of returns, drawdown  
+   - **Experiment Tracker**  
+     - Saves metrics for each run (train, validation, test)  
+     - JSON-based or advanced frameworks (e.g., MLflow)
 
 ---
 
 ## Installation
 
-### 1. Clone the Repository
-```bash
-git clone https://github.com/yourusername/FinTech-Market-Analytics.git
-cd FinTech-Market-Analytics
-```
+1. **Clone the Repository**  
+   ```bash
+   git clone https://github.com/yourusername/FinTech-Market-Analytics.git
+   cd FinTech-Market-Analytics
+   ```
 
-### 2. Create and Activate a Virtual Environment
-```bash
-python -m venv venv
-```
-- On Windows:
-  ```bash
-  venv\Scripts\activate
-  ```
-- On macOS/Linux:
-  ```bash
-  source venv/bin/activate
-  ```
+2. **Create and Activate a Virtual Environment**  
+   ```bash
+   python -m venv venv
+   # On Windows:
+   venv\Scripts\activate
+   # On macOS/Linux:
+   source venv/bin/activate
+   ```
 
-### 3. Install Requirements
-
-#### TA‑Lib
-
-**TA‑Lib** requires compiling the C library. You can install it in different ways:
-
-- **Conda** (easiest cross-platform):
-  ```bash
-  conda install -c conda-forge ta-lib
-  ```
-- **Pip with precompiled wheel** (Windows users often use Gohlke’s wheels)  
-  Or if you already have a local TA-Lib library installed, you can do:
-  ```bash
-  pip install ta-lib
-  ```
-
-#### backoff
-
-This library helps with retries/exponential backoff for transient errors:
-```bash
-pip install backoff
-```
-
-#### Other Requirements
-
-Finally, install the rest of the dependencies (Pandas, NumPy, scikit-learn, etc.) listed in `requirements.txt`:
-```bash
-pip install -r requirements.txt
-```
+3. **Install Requirements**  
+   ```bash
+   pip install -r requirements.txt
+   ```
+   - Includes libraries like **pandas**, **numpy**, **scikit-learn**, **tensorflow/keras** (or PyTorch), **TA-Lib** (note: TA-Lib may require a special install on Windows), **backoff**, etc.
 
 ---
 
@@ -128,93 +103,66 @@ pip install -r requirements.txt
 from market_analyzer import MarketDataAnalyzer
 from market_analyzer.preprocessor import DataPreprocessor
 
-# Initialize components
 analyzer = MarketDataAnalyzer()
+analyzer.download_data(period="1y")  # e.g. 1 year
+df = analyzer.get_asset_data('BTC-USD')
+
 preprocessor = DataPreprocessor()
-
-# Download and process data
-analyzer.download_data(period="2y")
-data = analyzer.get_asset_data('BTC-USD')
-cleaned_data = preprocessor.clean_data(data)
-features = preprocessor.engineer_features(cleaned_data)
+cleaned_df = preprocessor.clean_data(df)
+features = preprocessor.engineer_features(cleaned_df)
+# Now 'features' contains advanced indicators for ML or strategy logic
 ```
 
-### 2. Model Training & Evaluation
+### 2. Training a Neural Network Strategy
 
-```python
-from market_analyzer.ml_models import RandomForestStrategy, MLModelManager
-from market_analyzer.experiment_tracker import ExperimentTracker
+1. **`nn_model_training.py`**  
+   - Loads data  
+   - Creates a **NeuralNetworkStrategy**  
+   - Trains & evaluates it with a **Backtester** on a validation set  
+   - Logs metrics via **ExperimentTracker**  
 
-# Initialize components
-model = RandomForestStrategy()
-model_manager = MLModelManager()
-tracker = ExperimentTracker()
-
-# Train and evaluate
-train_metrics = model_manager.train_model(model, train_features, train_data)
-test_metrics = model_manager.evaluate_model(model, test_features, test_data)
-
-# Track experiment
-tracker.save_experiment(
-    experiment_name='BTC_prediction',
-    model_name='random_forest',
-    train_metrics=train_metrics,
-    test_metrics=test_metrics,
-    validation_metrics=val_metrics,
-    params=model.model_params
-)
-```
-
-## Running the Analysis
-
-The project includes three main scripts:
-
-1. **Data Processing**:
+Typical run:
 ```bash
-python data_processing.py
+python nn_model_training.py
 ```
-- Downloads market data
-- Performs preprocessing
-- Generates features
-- Creates data quality visualizations
+This script prints training accuracy, validation metrics, backtest results, and possibly stores them in `results/experiment_results.json`.
 
-2. **Model Training**:
-```bash
-python model_training.py
-```
-- Trains ML models
-- Evaluates performance
-- Tracks experiments
-- Generates visualizations
+### 3. Viewing Dashboard Results
 
-3. **Trading Strategy Analysis**:
+After training, run:
 ```bash
-python strategy_analysis.py
+python nn_dashboard.py
 ```
-- Implements trading strategies  
-- Performs backtesting  
-- Generates performance reports  
+This script:
+- Loads or constructs dictionaries of final results (e.g., `portfolio_value`, `annual_return`, etc.).  
+- Passes them to `StrategyDashboard` for plotting **portfolio value**, **returns distribution**, **performance metrics** (Sharpe, drawdown, etc.), and **drawdown** charts.  
+
+If your data is non-empty and properly aligned, you’ll see interactive charts showing how the **Neural Network Strategy** performed.
 
 ---
 
-## Handling Network Failures with `backoff`
+## **Typical Workflow**
 
-In [`analyzer.py`](src/market_analyzer/analyzer.py), we wrap our Yahoo Finance data download logic with **exponential backoff** for transient issues (like network blips). For example:
+Below is the **usual** sequence of commands and scripts when using a **Neural Network–based** trading strategy in this project:
 
-```python
-import backoff
-import requests
+1. **`python nn_model_training.py`**  
+   - Downloads or loads historical market data.  
+   - Creates **train/val** splits.  
+   - Builds `(X_train,y_train)` and `(X_val,y_val)`.  
+   - **Trains** the neural network model (e.g., LSTM) in `NeuralNetworkStrategy`.  
+   - **Backtests** on the validation set via `Backtester`, computing metrics like `annual_return`, `sharpe_ratio`, etc.  
+   - Saves or logs these results (e.g., to `experiment_results.json`).
 
-@backoff.on_exception(
-    backoff.expo,
-    (requests.exceptions.ConnectionError, requests.exceptions.Timeout),
-    max_tries=5
-)
-def _download_with_backoff(symbol, period):
-    # ...
-```
+2. **`python nn_dashboard.py`**  
+   - Loads the final or partial results (from JSON, in-memory, or a custom method).  
+   - Creates a `StrategyDashboard()` instance.  
+   - Calls methods like `plot_portfolio_values(...)`, `plot_returns_distribution(...)`, `plot_performance_metrics(...)`, and `plot_drawdown(...)`.  
+   - Displays interactive or static charts showing how the neural network strategy performed (e.g. line plots of **portfolio_value** over time, bar charts of **annual_return** or **sharpe_ratio**, etc.).
 
-This prevents random connection failures from breaking the entire download process and retries up to five times.
+3. (Optional) **Compare** multiple strategies:
+   - Run classical strategies (e.g., MACD, Moving Average Cross) or older ML approaches.  
+   - Gather each strategy’s dictionary (with `'annual_return','volatility','portfolio_value'`, etc.).  
+   - Pass them in a list to the same dashboard methods for side-by-side comparison.
 
 ---
 
@@ -225,45 +173,24 @@ FinTech-Market-Analytics/
 ├── src/
 │   └── market_analyzer/
 │       ├── __init__.py
-│       ├── analyzer.py          # Market data analysis
-│       ├── preprocessor.py      # Data preprocessing
+│       ├── analyzer.py          # MarketDataAnalyzer for data collection
+│       ├── preprocessor.py      # Data cleaning & feature creation
 │       ├── feature_engineering.py
-│       ├── ml_models.py         # ML model implementations
-│       ├── time_series_models.py
-│       ├── experiment_tracker.py
-│       ├── strategy.py          # Base trading strategies
-│       ├── advanced_strategy.py # Advanced strategy with TA‑Lib
-│       └── visualization.py
+│       ├── ml_models.py         # Non-neural ML models
+│       ├── nn_strategy.py       # NeuralNetworkStrategy (LSTM, etc.)
+│       ├── backtester.py        # Backtesting engine for strategies
+│       ├── experiment_tracker.py # Logging experiments
+│       ├── dashboard.py         # StrategyDashboard for plotting
+│       └── utils.py             # Utility functions (validate_data, etc.)
+├── nn_model_training.py         # Script to train & test the NN strategy
+├── nn_dashboard.py              # Script to display NN strategy results
 ├── data/                        # Data storage
 ├── models/                      # Saved models
 ├── results/                     # Experiment results
 └── tests/                       # Unit tests
 ```
 
-## Output Structure
-
-The project generates several outputs:
-
-1. **Processed Data**
-- Clean market data
-- Engineered features
-- Technical indicators
-
-2. **Model Artifacts**
-- Trained models
-- Model parameters
-- Feature importance
-
-3. **Experiment Results**
-- Training metrics
-- Validation results
-- Performance comparisons
-
-4. **Visualizations**
-- Feature importance plots
-- Performance comparisons
-- Trading signals
-- Returns distributions
+---
 
 ## Contributing
 
@@ -277,10 +204,4 @@ The project generates several outputs:
 
 ## License
 
-This project is licensed under the **MIT License** – see the [LICENSE](LICENSE) file for details.
-```
-
-### Notes
-
-- The **exact** wording is up to you, but do be sure to highlight both **TA‑Lib** and **backoff** in your installation steps and mention how you use them.  
-- If your `requirements.txt` file already includes `ta-lib` and `backoff`, you can simply mention `pip install -r requirements.txt`—but still note the special instructions for TA‑Lib on Windows.
+This project is licensed under the MIT License – see the [LICENSE](LICENSE) file for details.

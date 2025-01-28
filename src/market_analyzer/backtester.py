@@ -28,42 +28,50 @@ class Backtester:
 
     def evaluate_strategy(self, strategy: TradingStrategy, data: pd.DataFrame) -> Dict:
         """
-        Evaluate the strategy on the provided data. 
-        Calls strategy.generate_signals(...), calculates returns, etc.
+        Evaluate the strategy on 'data'. Return a dictionary with all needed fields,
+        including 'annual_return', so the dashboard won't fail.
         """
         results = self._create_empty_results(strategy.name)
         try:
             signals = strategy.generate_signals(data)
+            print("DEBUG signals type:", type(signals))  # should be <class 'pandas.core.series.Series'>
+
             if signals.empty:
                 print(f"No signals generated for {strategy.name}")
                 return results
 
+            # Calculate returns from strategy
             strategy_returns = strategy.calculate_returns(data, signals)
+
             # Build portfolio value
             initial_capital = 10000.0
             cum_returns = (1 + strategy_returns).cumprod()
             portfolio_value = initial_capital * cum_returns
 
             # Compute metrics
-            total_return = (portfolio_value.iloc[-1] - initial_capital) / initial_capital
-            daily_ret = portfolio_value.pct_change().dropna()
-            volatility = daily_ret.std() * np.sqrt(252)
-            annual_return = (1 + total_return)**(252 / len(daily_ret)) - 1 if len(daily_ret) > 0 else 0
-            sharpe_ratio = annual_return / volatility if volatility != 0 else 0
-            max_drawdown = self._calculate_max_drawdown(portfolio_value)
+            total_return = (portfolio_value.iloc[-1] - initial_capital)/initial_capital
 
-            # Fill results
-            results = {
-                "strategy_name": strategy.name,
+            daily_ret = portfolio_value.pct_change().dropna()
+            if len(daily_ret) < 1:
+                return results
+
+            volatility = daily_ret.std() * np.sqrt(252)
+            # annual_return
+            annual_return = (1 + total_return)**(252/len(daily_ret)) - 1
+            sharpe_ratio = annual_return / volatility if volatility!=0 else 0.0
+            max_dd = self._calculate_max_drawdown(portfolio_value)
+
+            results.update({
                 "total_return": float(total_return),
-                "annual_return": float(annual_return),
+                "annual_return": float(annual_return),  # ensures we have 'annual_return'
                 "volatility": float(volatility),
                 "sharpe_ratio": float(sharpe_ratio),
-                "max_drawdown": float(max_drawdown),
+                "max_drawdown": float(max_dd),
                 "portfolio_value": portfolio_value,
                 "signals": signals,
                 "returns": strategy_returns
-            }
+            })
+
         except Exception as e:
             print(f"Error evaluating strategy {strategy.name}: {e}")
 
@@ -73,7 +81,7 @@ class Backtester:
         return {
             "strategy_name": strategy_name,
             "total_return": 0.0,
-            "annual_return": 0.0,
+            "annual_return": 0.0,     # also included by default
             "volatility": 0.0,
             "sharpe_ratio": 0.0,
             "max_drawdown": 0.0,
@@ -83,6 +91,6 @@ class Backtester:
         }
 
     def _calculate_max_drawdown(self, portfolio_value: pd.Series) -> float:
-        rolling_max = portfolio_value.expanding().max()
-        drawdown = (portfolio_value - rolling_max) / rolling_max
+        roll_max = portfolio_value.cummax()
+        drawdown = (portfolio_value - roll_max) / roll_max
         return float(drawdown.min())
