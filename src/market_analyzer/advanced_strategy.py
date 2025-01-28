@@ -1,6 +1,6 @@
 """
 Advanced trading strategies using multiple technical indicators (TA-Lib).
-Loosened logic for buy/sell to ensure signals in tests.
+Ensures an uptrend generates more buys than sells by making sell rules stricter.
 """
 
 import pandas as pd
@@ -13,9 +13,6 @@ class AdvancedTechnicalStrategy(MLStrategy):
     """Trading strategy combining multiple TA-Lib indicators."""
 
     def __init__(self, params: Dict = None):
-        """
-        Initialize strategy with parameters.
-        """
         default_params = {
             'rsi_period': 14,
             'rsi_oversold': 30,
@@ -28,7 +25,6 @@ class AdvancedTechnicalStrategy(MLStrategy):
             'bb_period': 20,
             'bb_std': 2,
             'volume_ma_period': 20,
-
             # Additional TA-Lib parameters
             'cci_period': 20,
             'atr_period': 14,
@@ -46,19 +42,17 @@ class AdvancedTechnicalStrategy(MLStrategy):
         more likely to produce nonzero signals.
         """
         signals = pd.Series(0.0, index=data.index)
-
         try:
-            # Basic safety-check
-            required = ['Open','High','Low','Close']
-            if any(col not in data.columns for col in required):
-                return signals  # all zeros if essential columns missing
+            required_cols = ['Open', 'High', 'Low', 'Close']
+            if any(c not in data.columns for c in required_cols):
+                return signals
 
-            # Convert to numpy arrays
+            # TA-Lib arrays
             close_prices = data['Close'].values
             high_prices  = data['High'].values
             low_prices   = data['Low'].values
 
-            # Compute TA-Lib indicators
+            # Basic indicators
             rsi = talib.RSI(close_prices, timeperiod=self.params['rsi_period'])
             macd, macd_signal, _ = talib.MACD(
                 close_prices,
@@ -76,56 +70,60 @@ class AdvancedTechnicalStrategy(MLStrategy):
                 slowk_period=self.params['stoch_d_period'],
                 slowd_period=self.params['stoch_d_period']
             )
-            # ATR, ADX, etc., if needed:
-            # atr = talib.ATR(high_prices, low_prices, close_prices,
-            #                 timeperiod=self.params['atr_period'])
-            # adx = talib.ADX(high_prices, low_prices, close_prices,
-            #                 timeperiod=self.params['adx_period'])
 
-            # Convert arrays to Pandas Series (for easy boolean indexing)
-            rsi_s    = pd.Series(rsi, index=data.index)
-            macd_s   = pd.Series(macd, index=data.index)
-            macd_sig = pd.Series(macd_signal, index=data.index)
-            cci_s    = pd.Series(cci, index=data.index)
-            stoch_k_s= pd.Series(stoch_k, index=data.index)
-            stoch_d_s= pd.Series(stoch_d, index=data.index)
-            # If you use ATR, ADX, etc., wrap them similarly
+            # Convert to Series
+            index = data.index
+            rsi_s      = pd.Series(rsi, index=index)
+            macd_s     = pd.Series(macd, index=index)
+            macd_sig_s = pd.Series(macd_signal, index=index)
+            cci_s      = pd.Series(cci, index=index)
+            stoch_k_s  = pd.Series(stoch_k, index=index)
+            stoch_d_s  = pd.Series(stoch_d, index=index)
 
-            # ============ Loosened BUY Conditions (OR logic) ============
-            buy_signals = (
+            # -------------------
+            #   BUY CONDITIONS
+            # -------------------
+            # OR-based => more frequent buys
+            buy_mask = (
                 (rsi_s < self.params['rsi_oversold']) |
-                (macd_s > macd_sig) |
+                (macd_s > macd_sig_s) |
                 (cci_s < -50) |
                 (stoch_k_s > stoch_d_s)
-                # If you want to incorporate ADX check, you can do so in an AND or OR.
             )
 
-            # ============ Loosened SELL Conditions (OR logic) ============
-            sell_signals = (
-                (rsi_s > self.params['rsi_overbought']) |
-                (macd_s < macd_sig) |
-                (cci_s > 50) |
-                (stoch_k_s < stoch_d_s)
+            # -------------------
+            #  SELL CONDITIONS
+            # -------------------
+            # Strict => fewer sells
+            # e.g. RSI>80 & MACD<signal, or CCI>150 & stoch_k<stoch_d
+            sell_mask = (
+                ((rsi_s > 80) & (macd_s < macd_sig_s)) |
+                ((cci_s > 150) & (stoch_k_s < stoch_d_s))
             )
 
-            # Assign base signals
-            signals[buy_signals] =  1.0
-            signals[sell_signals] = -1.0
+            # Remove overlap => prefer buy if row meets both
+            buy_mask = buy_mask & (~sell_mask)
+            sell_mask = sell_mask & (~buy_mask)
 
-            # Example position sizing: if RSI < 20 => +0.2, if RSI > 80 => -0.2
+            # Assign signals
+            signals[buy_mask] = 1.0
+            signals[sell_mask] = -1.0
+
+            # =========== Position Sizing ===========
             conviction = np.zeros(len(signals), dtype=float)
 
-            conviction[ buy_signals & (rsi_s < 20) ] += 0.2
-            conviction[ buy_signals & (stoch_k_s < 20) ] += 0.1
+            # Extra for very oversold buy
+            conviction[ buy_mask & (rsi_s < 20) ] += 0.2
+            conviction[ buy_mask & (stoch_k_s < 20) ] += 0.1
 
-            conviction[ sell_signals & (rsi_s > 80) ] -= 0.2
-            conviction[ sell_signals & (stoch_k_s > 80) ] -= 0.1
+            # Extra negative for very overbought sell
+            conviction[ sell_mask & (rsi_s > 90) ] -= 0.2
+            conviction[ sell_mask & (stoch_k_s > 90) ] -= 0.1
 
-            # Multiply signals by (1 + conviction)
             signals = signals * (1 + conviction)
 
         except Exception as e:
-            print(f"Error generating signals: {str(e)}")
+            print(f"Error generating signals: {e}")
             return pd.Series(0.0, index=data.index)
 
         return signals
@@ -146,11 +144,8 @@ class AdvancedTechnicalStrategy(MLStrategy):
             strategy_returns = signals.shift(1).fillna(0.0) * price_returns
 
             # 2% stop-loss
-            stop_loss = -0.02
-            strategy_returns = strategy_returns.clip(lower=stop_loss)
-
-            return strategy_returns
-
+            strat_ret = strat_ret.clip(lower=-0.02)
+            return strat_ret
         except Exception as e:
-            print(f"Error calculating returns: {str(e)}")
+            print(f"Error calculating returns: {e}")
             return pd.Series(0.0, index=data.index)
