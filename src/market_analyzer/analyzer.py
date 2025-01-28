@@ -3,6 +3,7 @@ Core analyzer module for financial market data analysis.
 """
 
 import yfinance as yf
+import backoff
 import pandas as pd
 import numpy as np
 from typing import Dict, List, Optional
@@ -67,40 +68,53 @@ class MarketDataAnalyzer:
             print(f"Error in data preparation: {e}")
             return pd.DataFrame()
 
-    def download_data(self, period: str = "1y") -> None:
+    @staticmethod
+    @backoff.on_exception(
+        backoff.expo,
+        (requests.exceptions.ConnectionError, requests.exceptions.Timeout),
+        max_tries=5,
+        jitter=None
+    )
+    def _download_with_backoff(symbol: str, period: str) -> yf.download:
         """
-        Download market data for all symbols.
+        Download ticker data with exponential backoff on temporary network failures.
         
         Args:
             period: Time period to download (e.g., '1y' for one year)
         """
+        ticker = yf.Ticker(symbol)
+        return ticker.history(period=period)
+    
+    def download_data(self, period: str = "1y") -> None:
         print("Downloading market data...")
         
         # Download cryptocurrency data
         for symbol in self.crypto_symbols:
             try:
-                ticker = yf.Ticker(symbol)
-                data = ticker.history(period=period)
+                data = self._download_with_backoff(symbol, period)
                 if not data.empty:
                     self.crypto_data[symbol] = self._prepare_data(data)
                     print(f"Downloaded data for {symbol}")
                 else:
                     print(f"No data available for {symbol}")
+            
             except Exception as e:
-                print(f"Error downloading {symbol}: {e}")
+                # If we fail *even after* all backoff retries, log an error once
+                print(f"Error downloading {symbol} after retries: {e}")
 
         # Download S&P500 stocks data (first 10 stocks)
         for symbol in self.sp500_symbols[:10]:
             try:
-                ticker = yf.Ticker(symbol)
-                data = ticker.history(period=period)
+                data = self._download_with_backoff(symbol, period)
                 if not data.empty:
                     self.stock_data[symbol] = self._prepare_data(data)
                     print(f"Downloaded data for {symbol}")
                 else:
                     print(f"No data available for {symbol}")
+            
             except Exception as e:
-                print(f"Error downloading {symbol}: {e}")
+                # If we fail *even after* all backoff retries, log an error once
+                print(f"Error downloading {symbol} after retries: {e}")
 
     def check_data_quality(self) -> Dict:
         """Check data quality for all assets."""

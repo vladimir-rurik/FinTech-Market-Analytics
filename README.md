@@ -4,91 +4,126 @@ A comprehensive Python toolkit for financial market data analysis, machine learn
 
 ## Core Components
 
-### 1. Data Processing Pipeline
-- **Data Collection**
-  - S&P500 stocks historical data
-  - Major cryptocurrencies (BTC, ETH, SOL, XRP)
-  - Automatic handling of real-time updates
+1. **Data Processing Pipeline**
+   - **Data Collection**  
+     - S&P500 stocks historical data  
+     - Major cryptocurrencies (BTC, ETH, SOL, XRP)  
+     - Automatic handling of real-time updates  
+   - **Data Preprocessing**  
+     - Missing value handling  
+     - Outlier detection and removal  
+     - Data normalization and cleaning  
+     - Automated quality checks  
+   - **Feature Engineering**  
+     - Price-based features (Moving averages, price channels)  
+     - Volume-based features (Volume profiles, price-volume correlations)  
+     - Volatility indicators (Rolling volatility, volatility regimes)  
+     - Technical indicators (RSI, MACD, Bollinger Bands, and more via TA‑Lib)  
+     - Machine learning–specific features  
 
-- **Data Preprocessing**
-  - Missing value handling
-  - Outlier detection and removal
-  - Data normalization and cleaning
-  - Automated quality checks
+2. **Machine Learning Models**
+   - **Classical ML Models**  
+     - Random Forest Strategy  
+     - Gradient Boosting Strategy  
+     - Regularized Logistic Strategy  
+   - **Time Series Models**  
+     - SARIMAX for price prediction  
+     - Volatility forecasting  
+     - Trend analysis  
+   - **Model Management**  
+     - Experiment tracking  
+     - Model versioning  
+     - Performance monitoring  
+     - Hyperparameter optimization  
 
-- **Feature Engineering**
-  - Price-based features (Moving averages, price channels)
-  - Volume-based features (Volume profiles, price-volume correlations)
-  - Volatility indicators (Rolling volatility, volatility regimes)
-  - Technical indicators (RSI, MACD, Bollinger Bands)
-  - Machine learning specific features
+3. **Trading Strategies**
+   - **Technical Analysis Based**  
+     - Moving Average Crossover  
+     - RSI Strategy  
+     - MACD Strategy  
+     - Bollinger Bands Strategy  
+   - **ML-Based Strategies**  
+     - Automated signal generation  
+     - Risk management  
+     - Portfolio optimization  
 
-### 2. Machine Learning Models
-- **Classical ML Models**
-  - Random Forest Strategy
-  - Gradient Boosting Strategy
-  - Regularized Logistic Strategy
+4. **Backtesting & Evaluation**
+   - **Data Split Management**  
+     - Training set (60%)  
+     - Testing set (20%)  
+     - Validation set (20%)  
+   - **Performance Metrics**  
+     - Accuracy, Precision, Recall, F1  
+     - Returns and Sharpe ratio  
+     - Maximum drawdown  
+     - Trading costs consideration  
 
-- **Time Series Models**
-  - SARIMAX for price prediction
-  - Volatility forecasting
-  - Trend analysis
+5. **Visualization & Monitoring**
+   - Feature importance analysis  
+   - Model performance comparison  
+   - Trading signals visualization  
+   - Returns distribution analysis  
+   - Experiment tracking dashboard  
 
-- **Model Management**
-  - Experiment tracking
-  - Model versioning
-  - Performance monitoring
-  - Hyperparameter optimization
-
-### 3. Trading Strategies
-- **Technical Analysis Based**
-  - Moving Average Crossover
-  - RSI Strategy
-  - MACD Strategy
-  - Bollinger Bands Strategy
-
-- **ML-Based Strategies**
-  - Automated signal generation
-  - Risk management
-  - Portfolio optimization
-
-### 4. Backtesting & Evaluation
-- **Data Split Management**
-  - Training set (60%)
-  - Testing set (20%)
-  - Validation set (20%)
-
-- **Performance Metrics**
-  - Accuracy, Precision, Recall, F1
-  - Returns and Sharpe ratio
-  - Maximum drawdown
-  - Trading costs consideration
-
-### 5. Visualization & Monitoring
-- Feature importance analysis
-- Model performance comparison
-- Trading signals visualization
-- Returns distribution analysis
-- Experiment tracking dashboard
+---
 
 ## Installation
 
+### 1. Clone the Repository
 ```bash
-# Clone the repository
 git clone https://github.com/yourusername/FinTech-Market-Analytics.git
 cd FinTech-Market-Analytics
+```
 
-# Create and activate virtual environment
+### 2. Create and Activate a Virtual Environment
+```bash
 python -m venv venv
-source venv/Scripts/activate  # On Windows use: venv\Scripts\activate
+```
+- On Windows:
+  ```bash
+  venv\Scripts\activate
+  ```
+- On macOS/Linux:
+  ```bash
+  source venv/bin/activate
+  ```
 
-# Install required packages
+### 3. Install Requirements
+
+#### TA‑Lib
+
+**TA‑Lib** requires compiling the C library. You can install it in different ways:
+
+- **Conda** (easiest cross-platform):
+  ```bash
+  conda install -c conda-forge ta-lib
+  ```
+- **Pip with precompiled wheel** (Windows users often use Gohlke’s wheels)  
+  Or if you already have a local TA-Lib library installed, you can do:
+  ```bash
+  pip install ta-lib
+  ```
+
+#### backoff
+
+This library helps with retries/exponential backoff for transient errors:
+```bash
+pip install backoff
+```
+
+#### Other Requirements
+
+Finally, install the rest of the dependencies (Pandas, NumPy, scikit-learn, etc.) listed in `requirements.txt`:
+```bash
 pip install -r requirements.txt
 ```
+
+---
 
 ## Usage Examples
 
 ### 1. Data Processing & Feature Engineering
+
 ```python
 from market_analyzer import MarketDataAnalyzer
 from market_analyzer.preprocessor import DataPreprocessor
@@ -105,6 +140,7 @@ features = preprocessor.engineer_features(cleaned_data)
 ```
 
 ### 2. Model Training & Evaluation
+
 ```python
 from market_analyzer.ml_models import RandomForestStrategy, MLModelManager
 from market_analyzer.experiment_tracker import ExperimentTracker
@@ -155,9 +191,32 @@ python model_training.py
 ```bash
 python strategy_analysis.py
 ```
-- Implements trading strategies
-- Performs backtesting
-- Generates performance reports
+- Implements trading strategies  
+- Performs backtesting  
+- Generates performance reports  
+
+---
+
+## Handling Network Failures with `backoff`
+
+In [`analyzer.py`](src/market_analyzer/analyzer.py), we wrap our Yahoo Finance data download logic with **exponential backoff** for transient issues (like network blips). For example:
+
+```python
+import backoff
+import requests
+
+@backoff.on_exception(
+    backoff.expo,
+    (requests.exceptions.ConnectionError, requests.exceptions.Timeout),
+    max_tries=5
+)
+def _download_with_backoff(symbol, period):
+    # ...
+```
+
+This prevents random connection failures from breaking the entire download process and retries up to five times.
+
+---
 
 ## Project Structure
 
@@ -168,12 +227,13 @@ FinTech-Market-Analytics/
 │       ├── __init__.py
 │       ├── analyzer.py          # Market data analysis
 │       ├── preprocessor.py      # Data preprocessing
-│       ├── feature_engineering.py  # Feature generation
+│       ├── feature_engineering.py
 │       ├── ml_models.py         # ML model implementations
-│       ├── time_series_models.py  # Time series models
-│       ├── experiment_tracker.py  # Experiment tracking
-│       ├── strategy.py          # Trading strategies
-│       └── visualization.py     # Visualization tools
+│       ├── time_series_models.py
+│       ├── experiment_tracker.py
+│       ├── strategy.py          # Base trading strategies
+│       ├── advanced_strategy.py # Advanced strategy with TA‑Lib
+│       └── visualization.py
 ├── data/                        # Data storage
 ├── models/                      # Saved models
 ├── results/                     # Experiment results
@@ -207,13 +267,20 @@ The project generates several outputs:
 
 ## Contributing
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+1. Fork the repository  
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)  
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)  
+4. Push to the branch (`git push origin feature/AmazingFeature`)  
+5. Open a Pull Request  
+
+---
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the **MIT License** – see the [LICENSE](LICENSE) file for details.
+```
 
+### Notes
+
+- The **exact** wording is up to you, but do be sure to highlight both **TA‑Lib** and **backoff** in your installation steps and mention how you use them.  
+- If your `requirements.txt` file already includes `ta-lib` and `backoff`, you can simply mention `pip install -r requirements.txt`—but still note the special instructions for TA‑Lib on Windows.
