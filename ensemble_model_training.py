@@ -29,9 +29,9 @@ def main():
     # e.g. ts_nn.train(...), llm_sent.load_pretrained(...), rl_agent.fit(...)
     # but here we'll skip for brevity.
 
-    # 3) Build an ensemble (voting_mode=True or meta-learning as we wish)
+    # 3) Build an ensemble (voting=True or meta-learning as we wish)
     ensemble = EnsembleStrategy(sub_strategies=[ts_nn, llm_sent, rl_agent],
-                                voting_mode=True,
+                                voting=True,
                                 name="ensemble_strategy")
 
     # 4) Backtester => evaluate on validation set
@@ -52,7 +52,7 @@ def main():
         train_metrics={},
         test_metrics={},  # or some real test
         validation_metrics=val_results,
-        params={"voting_mode": True, "sub_models": ["ts_nn", "llm_sent", "rl_agent"]}
+        params={"voting": True, "sub_models": ["ts_nn", "llm_sent", "rl_agent"]}
     )
 
 if __name__=="__main__":

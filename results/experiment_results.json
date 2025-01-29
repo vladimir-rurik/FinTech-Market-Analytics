@@ -1,7 +1,7 @@
 {
     "ensemble_trading": [
         {
-            "timestamp": "2025-01-28 18:00:20",
+            "timestamp": "2025-01-29 18:55:09",
             "model_name": "EnsembleStrategy",
             "train_metrics": {},
             "test_metrics": {},
@@ -166,8 +166,6 @@
                 ],
                 "returns": [
                     0.0,
-                    -0.0,
-                    -0.0,
                     0.0,
                     0.0,
                     0.0,
@@ -238,11 +236,13 @@
                     0.0,
                     -0.0,
                     -0.0,
-                    -0.0
+                    -0.0,
+                    -0.0,
+                    0.0
                 ]
             },
             "parameters": {
-                "voting_mode": true,
+                "voting": true,
                 "sub_models": [
                     "ts_nn",
                     "llm_sent",
