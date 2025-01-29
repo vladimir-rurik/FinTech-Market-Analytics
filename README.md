@@ -1,84 +1,78 @@
 # FinTech-Market-Analytics
 
-A comprehensive Python toolkit for **financial market data analysis**, **machine learning model development**, and **trading strategy evaluation**. This project provides tools for automated analysis of stock market and cryptocurrency data, including data preprocessing, feature engineering, model training, and performance evaluation.
+A comprehensive Python toolkit for **financial market data analysis**, **machine learning model development**, **ensemble modeling**, and **trading strategy evaluation**. This project provides tools for automated analysis of stock market and cryptocurrency data, including data preprocessing, feature engineering, model training, performance evaluation, and strategy dashboards.
 
 ## Core Components
 
 1. **Data Processing Pipeline**
-   - **Data Collection**  
-     - S&P 500 stocks historical data  
-     - Major cryptocurrencies (BTC, ETH, SOL, XRP)  
-     - Automatic handling of real-time updates  
-   - **Data Preprocessing**  
-     - Missing value handling  
-     - Outlier detection and removal  
-     - Data normalization and cleaning  
-     - Automated quality checks  
-   - **Feature Engineering**  
-     - Price-based features (Moving averages, price channels)  
-     - Volume-based features (Volume profiles, price-volume correlations)  
-     - Volatility indicators (Rolling volatility, volatility regimes)  
-     - Technical indicators (RSI, MACD, Bollinger Bands, etc.) via TA‑Lib  
+   - **Data Collection**
+     - S&P 500 stocks historical data
+     - Major cryptocurrencies (BTC, ETH, SOL, XRP)
+     - Automatic handling of real-time updates
+   - **Data Preprocessing**
+     - Missing value handling
+     - Outlier detection and removal
+     - Data normalization and cleaning
+     - Automated quality checks
+   - **Feature Engineering**
+     - Price-based features (Moving averages, price channels)
+     - Volume-based features (Volume profiles, price-volume correlations)
+     - Volatility indicators (Rolling volatility, volatility regimes)
+     - Technical indicators (RSI, MACD, Bollinger Bands, etc.) via **TA‑Lib**
      - Machine learning–specific features
 
-2. **Machine Learning Models**
-   - **Classical ML Models**  
-     - Random Forest Strategy  
-     - Gradient Boosting Strategy  
-     - Regularized Logistic Strategy  
-   - **Deep Learning Models**  
-     - LSTM/GRU for time-series  
-     - Transformer-based approaches  
-     - Pretrained neural networks for advanced sequence analysis  
-   - **Time Series Models**
-     - SARIMAX for price prediction  
-     - Volatility forecasting  
-     - Trend analysis  
+2. **Machine Learning / Deep Learning Models**
+   - **Classical ML** (Random Forest, Gradient Boosting, Logistic Regression)
+   - **Neural Networks** (LSTM/GRU, Transformers, custom architectures)
+   - **LLM-based Sentiment** (Hugging Face Transformers for news sentiment)
+   - **Reinforcement Learning** (e.g. Stable-Baselines3 for agent training)
+   - **Model Management**
+     - Experiment tracking
+     - Model versioning
+     - Performance monitoring
+     - Hyperparameter optimization
 
-3. **Trading Strategies**
-   - **Technical Analysis Based**  
-     - Moving Average Crossover  
-     - RSI Strategy  
-     - MACD Strategy  
-     - Bollinger Bands Strategy  
-   - **ML-Based Strategies**  
-     - Automated signal generation  
-     - Risk management  
-     - Portfolio optimization  
-   - **Neural Network Strategies**  
-     - LSTM-based classification/regression for trading actions  
-     - Custom or pretrained architectures
+3. **Ensemble Strategies**
+   - **Heterogeneous Ensemble**:
+     - **Time-Series NN** (LSTM or Transformer)
+     - **LLM-based Sentiment** (news sentiment → signals)
+     - **RL-based Trading Agent** (policy gradient or PPO)
+   - **Fusion Methods**:
+     - Voting (majority or weighted)
+     - Meta-learning (train a meta-model on sub-model outputs)
 
 4. **Backtesting & Evaluation**
-   - **Data Split Management**  
-     - Training set (60%)  
-     - Testing set (20%)  
-     - Validation set (20%)  
-   - **Performance Metrics**  
-     - Accuracy, Precision, Recall, F1  
-     - Returns and Sharpe ratio  
-     - Maximum drawdown  
-     - Trading costs consideration  
+   - **Data Split Management**
+     - Training set (60%)
+     - Testing set (20%)
+     - Validation set (20%)
+   - **Performance Metrics**
+     - Accuracy, Precision, Recall, F1
+     - Returns and Sharpe ratio
+     - Maximum drawdown
+     - Trading costs consideration
 
 5. **Visualization & Monitoring**
-   - **Dashboards**  
-     - `strategy_analysis.py` or `nn_dashboard.py` for interactive charts  
-     - Plot signals, portfolio values, distribution of returns, drawdown  
-   - **Experiment Tracker**  
-     - Saves metrics for each run (train, validation, test)  
+   - **Dashboards**:
+     - Plot signals and portfolio values
+     - Display returns distribution
+     - Show performance metrics (annual return, sharpe ratio)
+     - Compare multiple strategies (ensemble vs. sub-models)
+   - **Experiment Tracker**:
      - JSON-based or advanced frameworks (e.g., MLflow)
+     - Logs each experiment’s metrics and parameters
 
 ---
 
 ## Installation
 
-1. **Clone the Repository**  
+1. **Clone the Repository**
    ```bash
    git clone https://github.com/yourusername/FinTech-Market-Analytics.git
    cd FinTech-Market-Analytics
    ```
 
-2. **Create and Activate a Virtual Environment**  
+2. **Create and Activate a Virtual Environment**
    ```bash
    python -m venv venv
    # On Windows:
@@ -87,11 +81,26 @@ A comprehensive Python toolkit for **financial market data analysis**, **machine
    source venv/bin/activate
    ```
 
-3. **Install Requirements**  
+3. **Install Requirements**
    ```bash
    pip install -r requirements.txt
    ```
-   - Includes libraries like **pandas**, **numpy**, **scikit-learn**, **tensorflow/keras** (or PyTorch), **TA-Lib** (note: TA-Lib may require a special install on Windows), **backoff**, etc.
+   - This typically includes **pandas**, **numpy**, **scikit-learn**, **ta-lib** (note: TA-Lib may require special install steps on Windows), **matplotlib**, **seaborn**, **tensorflow** or **pytorch**, etc.
+
+4. **Install Additional Packages** for the Ensemble:
+     ```bash
+     pip install backoff
+     ```
+   - **Stable-Baselines3** for RL:
+     ```bash
+     pip install stable-baselines3
+     ```
+   - **Transformers** for LLM-based sentiment:
+     ```bash
+     pip install transformers
+     ```
+
+Ensure these are in your environment so the code can load the sentiment model and run RL agents.
 
 ---
 
@@ -100,69 +109,68 @@ A comprehensive Python toolkit for **financial market data analysis**, **machine
 ### 1. Data Processing & Feature Engineering
 
 ```python
-from market_analyzer import MarketDataAnalyzer
+from market_analyzer.analyzer import MarketDataAnalyzer
 from market_analyzer.preprocessor import DataPreprocessor
 
 analyzer = MarketDataAnalyzer()
-analyzer.download_data(period="1y")  # e.g. 1 year
+analyzer.download_data(period="1y")
 df = analyzer.get_asset_data('BTC-USD')
 
 preprocessor = DataPreprocessor()
 cleaned_df = preprocessor.clean_data(df)
 features = preprocessor.engineer_features(cleaned_df)
-# Now 'features' contains advanced indicators for ML or strategy logic
 ```
 
-### 2. Training a Neural Network Strategy
+### 2. Training & Evaluating the Ensemble
 
-1. **`nn_model_training.py`**  
-   - Loads data  
-   - Creates a **NeuralNetworkStrategy**  
-   - Trains & evaluates it with a **Backtester** on a validation set  
-   - Logs metrics via **ExperimentTracker**  
+1. **`ensemble_model_training.py`** (Example)
+   - Loads data (`MarketDataAnalyzer`)
+   - Builds/Trains sub-models:
+     - **TimeSeriesNN** (LSTM/Transformer)
+     - **LLM-based Sentiment** (Hugging Face Transformers pipeline)
+     - **RLAgent** (Stable-Baselines3)
+   - Combines them in an `EnsembleStrategy` (voting or meta-learning)
+   - **Backtests** on validation set (via `Backtester`)
+   - Logs metrics (annual return, Sharpe ratio, etc.) using `ExperimentTracker`
 
 Typical run:
 ```bash
-python nn_model_training.py
+python ensemble_model_training.py
 ```
-This script prints training accuracy, validation metrics, backtest results, and possibly stores them in `results/experiment_results.json`.
+That will print training logs, backtest results, and store final metrics in e.g. `results/experiment_results.json`.
 
 ### 3. Viewing Dashboard Results
 
-After training, run:
+After training/evaluating the ensemble, run:
 ```bash
-python nn_dashboard.py
+python ensemble_dashboard.py
 ```
-This script:
-- Loads or constructs dictionaries of final results (e.g., `portfolio_value`, `annual_return`, etc.).  
-- Passes them to `StrategyDashboard` for plotting **portfolio value**, **returns distribution**, **performance metrics** (Sharpe, drawdown, etc.), and **drawdown** charts.  
-
-If your data is non-empty and properly aligned, you’ll see interactive charts showing how the **Neural Network Strategy** performed.
+It will:
+- Load or construct sub-model + ensemble results
+- Pass them to `StrategyDashboard` for line charts (portfolio value), distribution plots, bar charts (performance metrics), drawdown graphs, etc.
 
 ---
 
 ## **Typical Workflow**
 
-Below is the **usual** sequence of commands and scripts when using a **Neural Network–based** trading strategy in this project:
+1. **`python ensemble_model_training.py`**  
+   - Downloads or loads market data  
+   - Creates sub-model strategies (TimeSeriesNN, LLM-based sentiment, RL agent)  
+   - Optionally trains them  
+   - Creates **EnsembleStrategy**  
+   - Evaluates on validation set using **Backtester** → logs `'annual_return'`, `'sharpe_ratio'`, etc.  
+   - Saves results in `ExperimentTracker` or prints them.
 
-1. **`python nn_model_training.py`**  
-   - Downloads or loads historical market data.  
-   - Creates **train/val** splits.  
-   - Builds `(X_train,y_train)` and `(X_val,y_val)`.  
-   - **Trains** the neural network model (e.g., LSTM) in `NeuralNetworkStrategy`.  
-   - **Backtests** on the validation set via `Backtester`, computing metrics like `annual_return`, `sharpe_ratio`, etc.  
-   - Saves or logs these results (e.g., to `experiment_results.json`).
+2. **`python ensemble_dashboard.py`**  
+   - Loads the final ensemble (and sub-model) results from disk or memory  
+   - Uses `StrategyDashboard` to plot each strategy’s portfolio vs. the ensemble  
+   - Displays interactive charts for performance metrics, distribution of returns, drawdown, etc.
 
-2. **`python nn_dashboard.py`**  
-   - Loads the final or partial results (from JSON, in-memory, or a custom method).  
-   - Creates a `StrategyDashboard()` instance.  
-   - Calls methods like `plot_portfolio_values(...)`, `plot_returns_distribution(...)`, `plot_performance_metrics(...)`, and `plot_drawdown(...)`.  
-   - Displays interactive or static charts showing how the neural network strategy performed (e.g. line plots of **portfolio_value** over time, bar charts of **annual_return** or **sharpe_ratio**, etc.).
-
-3. (Optional) **Compare** multiple strategies:
-   - Run classical strategies (e.g., MACD, Moving Average Cross) or older ML approaches.  
-   - Gather each strategy’s dictionary (with `'annual_return','volatility','portfolio_value'`, etc.).  
-   - Pass them in a list to the same dashboard methods for side-by-side comparison.
+3. (Optional) **Compare** multiple ensemble configurations:
+   - Weighted vs. majority vote, or different meta-models  
+   - RL agent variations, different LLM sentiment models  
+   - Log each experiment’s results in `experiment_results.json`  
+   - Visualize side-by-side in the same dashboard.
 
 ---
 
@@ -173,21 +181,23 @@ FinTech-Market-Analytics/
 ├── src/
 │   └── market_analyzer/
 │       ├── __init__.py
-│       ├── analyzer.py          # MarketDataAnalyzer for data collection
-│       ├── preprocessor.py      # Data cleaning & feature creation
-│       ├── feature_engineering.py
-│       ├── ml_models.py         # Non-neural ML models
-│       ├── nn_strategy.py       # NeuralNetworkStrategy (LSTM, etc.)
-│       ├── backtester.py        # Backtesting engine for strategies
-│       ├── experiment_tracker.py # Logging experiments
-│       ├── dashboard.py         # StrategyDashboard for plotting
-│       └── utils.py             # Utility functions (validate_data, etc.)
-├── nn_model_training.py         # Script to train & test the NN strategy
-├── nn_dashboard.py              # Script to display NN strategy results
-├── data/                        # Data storage
-├── models/                      # Saved models
-├── results/                     # Experiment results
-└── tests/                       # Unit tests
+│       ├── analyzer.py            # MarketDataAnalyzer
+│       ├── preprocessor.py        # Data cleaning & feature creation
+│       ├── feature_engineering.py # Additional feature logic
+│       ├── nn_strategy.py         # or timeseries_nn_strategy.py
+│       ├── llm_sentiment_strategy.py
+│       ├── rl_agent_strategy.py
+│       ├── ensemble_strategy.py   # merges sub-models
+│       ├── backtester.py          # Backtesting engine
+│       ├── experiment_tracker.py  # Logging experiments
+│       ├── dashboard.py           # StrategyDashboard
+│       └── utils.py               # e.g. validate_data
+├── ensemble_model_training.py     # script to train and test ensemble
+├── ensemble_dashboard.py          # script to display ensemble results
+├── data/
+├── models/
+├── results/
+└── tests/
 ```
 
 ---
@@ -204,4 +214,4 @@ FinTech-Market-Analytics/
 
 ## License
 
-This project is licensed under the MIT License – see the [LICENSE](LICENSE) file for details.
+This project is licensed under the **MIT License** – see the [LICENSE](LICENSE) file for details.
