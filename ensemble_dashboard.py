@@ -13,7 +13,7 @@ def main():
 
     # Suppose time_series_nn had total_return=0.08, annual_return=0.1, etc.
     # We'll also create random Series to illustrate.
-    dates = pd.date_range("2025-01-01", periods=50, freq="D")
+    dates = pd.date_range("2025-04-01", periods=50, freq="D")
     import numpy as np
     import math
 

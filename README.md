@@ -86,6 +86,13 @@ A comprehensive Python toolkit for **financial market data analysis**, **machine
    pip install -r requirements.txt
    ```
    - This typically includes **pandas**, **numpy**, **scikit-learn**, **ta-lib** (note: TA-Lib may require special install steps on Windows), **matplotlib**, **seaborn**, **tensorflow** or **pytorch**, etc.
+      - To “Complete” the market_analyzer Module:
+      Ensure __init__.py is present
+      src/market_analyzer/__init__.py
+      Install (from the folder that has setup.py):
+     ```bash
+     pip install -e .
+     ```
 
 4. **Install Additional Packages** for the Ensemble:
      ```bash
