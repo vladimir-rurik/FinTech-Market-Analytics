@@ -56,7 +56,7 @@ A comprehensive Python toolkit for **financial market data analysis**, **machine
    - **Dashboards**:
      - Plot signals and portfolio values
      - Display returns distribution
-     - Show performance metrics (annual return, sharpe ratio)
+     - Show performance metrics (annual return, Sharpe ratio)
      - Compare multiple strategies (ensemble vs. sub-models)
    - **Experiment Tracker**:
      - JSON-based or advanced frameworks (e.g., MLflow)
@@ -75,8 +75,10 @@ A comprehensive Python toolkit for **financial market data analysis**, **machine
 2. **Create and Activate a Virtual Environment**
    ```bash
    python -m venv venv
+
    # On Windows:
    venv\Scripts\activate
+
    # On macOS/Linux:
    source venv/bin/activate
    ```
@@ -86,28 +88,27 @@ A comprehensive Python toolkit for **financial market data analysis**, **machine
    pip install -r requirements.txt
    ```
    - This typically includes **pandas**, **numpy**, **scikit-learn**, **ta-lib** (note: TA-Lib may require special install steps on Windows), **matplotlib**, **seaborn**, **tensorflow** or **pytorch**, etc.
-      - To “Complete” the market_analyzer Module:
-      Ensure __init__.py is present
-      src/market_analyzer/__init__.py
-      Install (from the folder that has setup.py):
+
+   - To “Complete” the market_analyzer Module:
+     Ensure `__init__.py` is present in `src/market_analyzer/`.
+     If you have a `setup.py`, you can install in editable mode:
      ```bash
      pip install -e .
      ```
 
 4. **Install Additional Packages** for the Ensemble:
-     ```bash
-     pip install backoff
-     ```
-   - **Stable-Baselines3** for RL:
+   - **Stable-Baselines3** (for Reinforcement Learning):
      ```bash
      pip install stable-baselines3
      ```
-   - **Transformers** for LLM-based sentiment:
+   - **Transformers** (for LLM-based sentiment):
      ```bash
      pip install transformers
      ```
-
-Ensure these are in your environment so the code can load the sentiment model and run RL agents.
+   - **Optional**: 
+     ```bash
+     pip install backoff  # or any other library you need
+     ```
 
 ---
 
@@ -181,6 +182,107 @@ It will:
 
 ---
 
+## Docker & Scheduling (Hourly Updates + Email)
+
+### 1) Docker & Cron
+
+To run the project **hourly** (e.g. to update crypto data and generate signals), you can:
+
+1. **Create a Dockerfile** installing `cron` and copying a `crontab`:
+   ```dockerfile
+   FROM python:3.11-slim
+
+   # Install cron
+   RUN apt-get update && apt-get install -y cron
+
+   WORKDIR /app
+   COPY . .  # includes your code, crontab, requirements.txt, etc.
+
+   RUN pip install --no-cache-dir -r requirements.txt
+
+   # Copy and install crontab
+   COPY crontab /etc/cron.d/cronjob
+   RUN chmod 0644 /etc/cron.d/cronjob
+   RUN crontab /etc/cron.d/cronjob
+
+   CMD ["cron", "-f"]
+   ```
+2. **`crontab`** (every hour):
+   ```bash
+   # crontab
+   0 * * * * python /app/hourly_update_and_predict.py >> /var/log/cron.log 2>&1
+   ```
+3. **Email Notifications**  
+   - In `hourly_update_and_predict.py`, read your Gmail (or other SMTP) credentials from environment variables:
+     ```python
+     import os
+     SMTP_USER = os.environ["SMTP_USER"]   # e.g. "youname@gmail.com"
+     SMTP_PASS = os.environ["SMTP_PASS"]
+     # ...
+     ```
+   - Use `smtplib` to send signals: SELL/BUY/HOLD.
+
+Then build and run:
+```bash
+docker build -t crypto-cron .
+docker run -e SMTP_USER="yourname@gmail.com" -e SMTP_PASS="myappassword" crypto-cron
+```
+At minute 0 every hour, `hourly_update_and_predict.py` is run, new signals are computed, and you get an email.
+
+---
+
+## Running on Azure
+
+### 1) Push Your Docker Image
+
+1. **Login** to Azure / Container Registry. For example:
+   ```bash
+   az login
+   az acr create --resource-group MyResourceGroup --name MyRegistryName --sku Basic
+   az acr login --name MyRegistryName
+   ```
+2. **Tag** and **Push**:
+   ```bash
+   docker tag crypto-cron MyRegistryName.azurecr.io/crypto-cron:latest
+   docker push MyRegistryName.azurecr.io/crypto-cron:latest
+   ```
+
+### 2) Azure Container Instances
+
+Now create an **Azure Container Instance** that runs continuously:
+
+```bash
+az container create \
+  --resource-group MyResourceGroup \
+  --name my-crypto-cron \
+  --image MyRegistryName.azurecr.io/crypto-cron:latest \
+  --registry-login-server MyRegistryName.azurecr.io \
+  --registry-username <ACR username> \
+  --registry-password <ACR password> \
+  --os-type Linux \
+  --cpu 1 --memory 1 \
+  --restart-policy Always \
+  --environment-variables \
+    SMTP_USER=james.p.naive@gmail.com \
+    SMTP_PASS=my_app_password \
+    SMTP_HOST=smtp.gmail.com \
+    SMTP_PORT=587
+```
+
+**Key Points**:
+
+- `--restart-policy Always` ensures it stays up.  
+- The **cron** inside the container triggers the script hourly, which uses environment variables to email you the signals.  
+- Check logs using:
+  ```bash
+  az container logs --resource-group MyResourceGroup --name my-crypto-cron
+  ```
+  to see any cron or script output.
+
+**Now** your Docker container runs 24/7 on Azure, updates crypto data each hour, generates signals, and emails you at `yourname@gmail.com` using your **`SMTP_PASS`** from environment variables.
+
+---
+
 ## Project Structure
 
 ```
@@ -201,9 +303,12 @@ FinTech-Market-Analytics/
 │       └── utils.py               # e.g. validate_data
 ├── ensemble_model_training.py     # script to train and test ensemble
 ├── ensemble_dashboard.py          # script to display ensemble results
+├── hourly_update_and_predict.py   # fetch new data hourly, produce signals, email
 ├── data/
 ├── models/
 ├── results/
+├── Dockerfile
+├── crontab
 └── tests/
 ```
 
@@ -211,14 +316,19 @@ FinTech-Market-Analytics/
 
 ## Contributing
 
-1. Fork the repository  
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)  
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)  
-4. Push to the branch (`git push origin feature/AmazingFeature`)  
-5. Open a Pull Request  
+1. **Fork** the repository  
+2. **Create** your feature branch (`git checkout -b feature/AmazingFeature`)  
+3. **Commit** your changes (`git commit -m 'Add some AmazingFeature'`)  
+4. **Push** to the branch (`git push origin feature/AmazingFeature`)  
+5. **Open a Pull Request**  
 
 ---
 
 ## License
 
 This project is licensed under the **MIT License** – see the [LICENSE](LICENSE) file for details.
+```
+
+> **Note:**  
+> - You must set **`SMTP_USER`** and **`SMTP_PASS`** as environment variables when running the Docker container (either locally or on Azure).  
+> - **Gmail requires** you to create an **App Password** if you have 2FA enabled—normal passwords won’t work. See [Google’s documentation](https://support.google.com/accounts/answer/185833) for details.  

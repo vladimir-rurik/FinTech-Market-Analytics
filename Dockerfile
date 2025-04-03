@@ -9,11 +9,11 @@ FROM python:3.11-slim
 WORKDIR /app
 
 # Install dependencies (requirements.txt must exist in the final container)
-COPY requirements.txt ./
+COPY . .
 RUN pip install -r requirements.txt
 
 # Optional dev install, if you have a setup.py
-#RUN pip install -e .
+RUN pip install -e .
 
 # (Optional) set environment variable
 ENV PYTHONUNBUFFERED=1
