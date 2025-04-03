@@ -327,7 +327,6 @@ FinTech-Market-Analytics/
 ## License
 
 This project is licensed under the **MIT License** – see the [LICENSE](LICENSE) file for details.
-```
 
 > **Note:**  
 > - You must set **`SMTP_USER`** and **`SMTP_PASS`** as environment variables when running the Docker container (either locally or on Azure).  
